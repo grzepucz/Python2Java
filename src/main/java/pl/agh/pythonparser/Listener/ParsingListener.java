@@ -4,15 +4,23 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import pl.agh.io.FileAccessor;
 import pl.agh.pythonparser.Mapper.Mapper;
 import pl.agh.pythonparser.Python3Listener;
 import pl.agh.pythonparser.Python3Parser;
 
 public class ParsingListener implements Python3Listener {
-    private int openBlockCount = 0;
-    private boolean printMain = false;
-    private boolean insideMain = false;
-    private String currentBlockVars = null;
+    private String filename;
+    private String content;
+    private int depth;
+
+    public ParsingListener() {
+        this("result");
+    }
+
+    public ParsingListener(String filename) {
+        this.filename = filename;
+    }
 
     @Override
     public void enterSingle_input(Python3Parser.Single_inputContext ctx) {
@@ -26,12 +34,22 @@ public class ParsingListener implements Python3Listener {
 
     @Override
     public void enterFile_input(Python3Parser.File_inputContext ctx) {
-
+        this.content = "";
+        this.depth = 0;
     }
 
     @Override
     public void exitFile_input(Python3Parser.File_inputContext ctx) {
+        boolean saved = new FileAccessor().save(
+                this.content,
+                this.filename
+        );
 
+        if (saved) {
+            System.out.println("Saved in result");
+        } else {
+            System.out.println("Cannot save...");
+        }
     }
 
     @Override
@@ -46,7 +64,7 @@ public class ParsingListener implements Python3Listener {
 
     @Override
     public void enterDecorator(Python3Parser.DecoratorContext ctx) {
-
+        System.out.println(ctx.getText());
     }
 
     @Override
@@ -56,7 +74,7 @@ public class ParsingListener implements Python3Listener {
 
     @Override
     public void enterDecorators(Python3Parser.DecoratorsContext ctx) {
-
+        System.out.println(ctx.getText());
     }
 
     @Override
@@ -76,30 +94,59 @@ public class ParsingListener implements Python3Listener {
 
     @Override
     public void enterFuncdef(@NotNull Python3Parser.FuncdefContext ctx) {
-        System.out.println("Hm: " +  ctx.DEF().getText());
-        String type = Mapper.getType(ctx.DEF().getSymbol().getText());
-        System.out.println(type);
-        // new FileAccessor().save(ctx.getText(), "test");
+        this.content = this.content.concat(
+                Mapper.getType(ctx.DEF().getText()) + " "
+        );
+        this.content = this.content.concat(
+                ctx.NAME().getText() + " "
+        );
+        this.depth++;
     }
 
     @Override
     public void exitFuncdef(Python3Parser.FuncdefContext ctx) {
+        this.content = this.content.concat(
+                "\n"
+        );
 
+        this.depth--;
+
+        for(int i = 0; i < this.depth; i++) {
+            this.content = this.content.concat(
+                    "\t"
+            );
+        }
+
+        this.content = this.content.concat(
+                "}"
+        );
     }
 
     @Override
     public void enterParameters(Python3Parser.ParametersContext ctx) {
+        this.content = this.content.concat(
+                "("
+        );
 
+        try {
+            this.content = this.content.concat(ctx.typedargslist().getText());
+        } catch (NullPointerException ex) {
+            System.out.println("Argument list is empty, skipped");
+        }
     }
 
     @Override
     public void exitParameters(Python3Parser.ParametersContext ctx) {
+        this.content = this.content.concat(") {");
+        this.content = this.content.concat("\n");
 
+        for (int i = 0; i < this.depth; i++) {
+            this.content = this.content.concat("\t");
+        }
     }
 
     @Override
     public void enterTypedargslist(Python3Parser.TypedargslistContext ctx) {
-
     }
 
     @Override
@@ -139,12 +186,16 @@ public class ParsingListener implements Python3Listener {
 
     @Override
     public void enterStmt(Python3Parser.StmtContext ctx) {
-
+//        System.out.println("enter enterStmt");
+//        System.out.println(ctx.getText());
+//        System.out.println("exit enterStmt");
     }
 
     @Override
     public void exitStmt(Python3Parser.StmtContext ctx) {
-
+//        System.out.println("enter exitStmt");
+//        System.out.println(ctx.getText());
+//        System.out.println("exit exitStmt");
     }
 
     @Override
