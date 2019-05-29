@@ -1,0 +1,17 @@
+# IntelliJ project files
+*.iml
+.idea/
+src/test/
+src/main/resources/python/*.txt
+
+
+# Eclipse project files
+/.classpath
+/.project
+/.pydevproject
+/.settings/
+
+# binaries
+gen/
+target/
+*.class
