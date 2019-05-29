@@ -6,10 +6,15 @@ import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import pl.agh.io.FileAccessor;
 import pl.agh.pythonparser.Mapper.Mapper;
-import pl.agh.pythonparser.Python3Listener;
+import pl.agh.pythonparser.Python3BaseListener;
 import pl.agh.pythonparser.Python3Parser;
 
-public class ParsingListener implements Python3Listener {
+public class ParsingListener extends Python3BaseListener {
+
+    private static final String SPACE = " ";
+    private static final String TAB = "\t";
+    private static final String NL = "\n";
+
     private String filename;
     private String content;
     private int depth;
@@ -94,39 +99,27 @@ public class ParsingListener implements Python3Listener {
 
     @Override
     public void enterFuncdef(@NotNull Python3Parser.FuncdefContext ctx) {
-        this.content = this.content.concat(
-                Mapper.getType(ctx.DEF().getText()) + " "
-        );
-        this.content = this.content.concat(
-                ctx.NAME().getText() + " "
-        );
+        this.content = this.content.concat( Mapper.getType(ctx.DEF().getText()) + SPACE );
+        this.content = this.content.concat( ctx.NAME().getText() + SPACE );
         this.depth++;
     }
 
     @Override
     public void exitFuncdef(Python3Parser.FuncdefContext ctx) {
-        this.content = this.content.concat(
-                "\n"
-        );
+        this.content = this.content.concat(NL);
 
         this.depth--;
 
         for(int i = 0; i < this.depth; i++) {
-            this.content = this.content.concat(
-                    "\t"
-            );
+            this.content = this.content.concat(TAB);
         }
 
-        this.content = this.content.concat(
-                "}"
-        );
+        this.content = this.content.concat( "}" );
     }
 
     @Override
     public void enterParameters(Python3Parser.ParametersContext ctx) {
-        this.content = this.content.concat(
-                "("
-        );
+        this.content = this.content.concat( "(" );
 
         try {
             this.content = this.content.concat(ctx.typedargslist().getText());
@@ -138,10 +131,10 @@ public class ParsingListener implements Python3Listener {
     @Override
     public void exitParameters(Python3Parser.ParametersContext ctx) {
         this.content = this.content.concat(") {");
-        this.content = this.content.concat("\n");
+        this.content = this.content.concat(NL);
 
         for (int i = 0; i < this.depth; i++) {
-            this.content = this.content.concat("\t");
+            this.content = this.content.concat(TAB);
         }
     }
 
