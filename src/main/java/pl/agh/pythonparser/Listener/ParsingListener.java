@@ -97,20 +97,18 @@ public class ParsingListener extends Python3BaseListener {
     @Override
     public void enterFuncdef(@NotNull Python3Parser.FuncdefContext ctx) {
         this.content = this.content.concat( Mapper.getBuildIn(ctx.DEF().getText()) + Dictionary.SPACE );
-        this.content = this.content.concat( Mapper.getBuildIn(ctx.NAME().getText()) + Dictionary.SPACE );
-        this.depth++;
+        if (Mapper.getBuildIn(ctx.NAME().getText()) != null) {
+            this.content = this.content.concat( Mapper.getBuildIn(ctx.NAME().getText()) + Dictionary.SPACE );
+        } else {
+            this.content = this.content.concat( ctx.NAME().getText() + Dictionary.SPACE );
+        }
     }
 
     @Override
     public void exitFuncdef(Python3Parser.FuncdefContext ctx) {
-        this.content = this.content.concat(Dictionary.NL);
-
-        this.depth--;
-
         for(int i = 0; i < this.depth; i++) {
             this.content = this.content.concat(Dictionary.TAB);
         }
-
         this.content = this.content.concat( "}" );
     }
 
@@ -181,7 +179,10 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void exitStmt(Python3Parser.StmtContext ctx) {
-        //this.content = this.content.concat(Dictionary.NL);
+        this.content = this.content.concat(Dictionary.NL);
+        for (int i = 0; i < this.depth; i++) {
+            this.content = this.content.concat(Dictionary.TAB);
+        }
     }
 
     @Override
@@ -199,8 +200,7 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterSmall_stmt(Python3Parser.Small_stmtContext ctx) {
-//        System.out.println("Inside small_stmt");
-//        System.out.println(ctx.getText());
+
     }
 
     @Override
@@ -215,6 +215,7 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void exitExpr_stmt(Python3Parser.Expr_stmtContext ctx) {
+        this.content = this.content.concat(Dictionary.SEMICOLON);
     }
 
     @Override
@@ -512,12 +513,20 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterSuite(Python3Parser.SuiteContext ctx) {
+        this.depth++;
+
+        //this.content = this.content.concat(Dictionary.NL);
+
+        for(int i = 0; i < this.depth; i++) {
+            this.content = this.content.concat(Dictionary.TAB);
+        }
 
     }
 
     @Override
     public void exitSuite(Python3Parser.SuiteContext ctx) {
-
+        this.depth--;
+        this.content = this.content.concat(Dictionary.NL);
     }
 
     @Override
@@ -594,7 +603,7 @@ public class ParsingListener extends Python3BaseListener {
     public void enterComparison(Python3Parser.ComparisonContext ctx) {
         System.out.println("INSIDE COMPARISON");
         for (int i = 0; i < ctx.getChildCount(); i++) {
-            System.out.println(ctx.getChild(i).getText());
+           // System.out.println(ctx.getChild(i).getText());
         }
     }
 
@@ -693,9 +702,26 @@ public class ParsingListener extends Python3BaseListener {
 
     }
 
+    /**
+     *  Gdy wiecej niz 1 dziecko - wywolanie funkcji
+     *
+     * @param ctx PowerContext
+     */
     @Override
     public void enterPower(Python3Parser.PowerContext ctx) {
-
+        if (ctx.getChildCount() > 1) {
+            if (Mapper.getBuildIn(ctx.getChild(0).getText()) != null) {
+                this.content = this.content.concat(
+                        Mapper.getBuildIn(
+                                ctx.getChild(0).getText()
+                        )
+                );
+            } else {
+                this.content = this.content.concat(
+                        ctx.getChild(0).getText()
+                );
+            }
+        }
     }
 
     @Override
@@ -706,6 +732,7 @@ public class ParsingListener extends Python3BaseListener {
     @Override
     public void enterAtom(Python3Parser.AtomContext ctx) {
 
+       // System.out.println("atom: " + ctx.getText());
     }
 
     @Override
@@ -725,12 +752,12 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterTrailer(Python3Parser.TrailerContext ctx) {
-
+        this.content = this.content.concat(ctx.getChild(0).getText());
     }
 
     @Override
     public void exitTrailer(Python3Parser.TrailerContext ctx) {
-
+        this.content = this.content.concat(ctx.getChild(ctx.getChildCount()-1).getText());
     }
 
     @Override
@@ -795,7 +822,7 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterClassdef(Python3Parser.ClassdefContext ctx) {
-        System.out.println("INSIDE CLASS DEF");
+       // System.out.println("INSIDE CLASS DEF");
     }
 
     @Override
@@ -875,7 +902,7 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterStr(Python3Parser.StrContext ctx) {
-
+        this.content = this.content.concat( ctx.getText() );
     }
 
     @Override
@@ -885,7 +912,12 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterNumber(Python3Parser.NumberContext ctx) {
-
+        if (ctx.getChild(0) instanceof Python3Parser.IntegerContext) {
+//            this.content = this.content.concat(
+//                    Mapper.getType("int")
+//                    + ctx.getText()
+//            );
+        }
     }
 
     @Override

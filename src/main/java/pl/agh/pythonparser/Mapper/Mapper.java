@@ -47,14 +47,14 @@ public class Mapper {
     }
 
     public static String getType(String type) {
-        return !types.containsKey(type) ? type : types.get(type.toLowerCase());
+        return !types.containsKey(type) ? null : types.get(type.toLowerCase());
     }
 
     public static String getOperator(String operator) {
-        return !operators.containsKey(operator) ? operator : operators.get(operator.toLowerCase());
+        return !operators.containsKey(operator) ? null : operators.get(operator.toLowerCase());
     }
 
     public static String getBuildIn(String buildInFoo) {
-        return !buildIn.containsKey(buildInFoo) ? buildInFoo : buildIn.get(buildInFoo.toLowerCase());
+        return !buildIn.containsKey(buildInFoo) ? null : buildIn.get(buildInFoo.toLowerCase());
     }
 }

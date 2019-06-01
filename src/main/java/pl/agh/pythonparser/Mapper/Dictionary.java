@@ -6,4 +6,5 @@ public class Dictionary {
     public static final String NL = "\n";
     public static final String COMMA = ",";
     public static final String SEMICOLON = ";";
+    public static final String QUOTA = "\"";
 }
