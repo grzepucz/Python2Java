@@ -17,6 +17,6 @@ public class Main {
 
         String content = fileAccessor.read(source);
         //fileAccessor.save(content.replace('d', 'c'), "result.txt");
-        fileAccessor.save(new Builder.Tree(content).toStringASCII(), "result_tree.txt");
+        fileAccessor.save(new Builder.Tree(content).toStringASCII(), "result_loops_tree.txt");
     }
 }

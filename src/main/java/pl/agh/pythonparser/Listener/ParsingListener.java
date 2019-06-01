@@ -10,6 +10,8 @@ import pl.agh.pythonparser.Mapper.Mapper;
 import pl.agh.pythonparser.Python3BaseListener;
 import pl.agh.pythonparser.Python3Parser;
 
+import java.util.Map;
+
 public class ParsingListener extends Python3BaseListener {
 
     private String filename;
@@ -106,7 +108,8 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void exitFuncdef(Python3Parser.FuncdefContext ctx) {
-        for(int i = 0; i < this.depth; i++) {
+        for(int i = 0; i < this.depth
+                ; i++) {
             this.content = this.content.concat(Dictionary.TAB);
         }
         this.content = this.content.concat( "}" );
@@ -187,10 +190,7 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterSimple_stmt(Python3Parser.Simple_stmtContext ctx) {
-        for ( int i = 0; i < ctx.getChildCount(); i++) {
-            //this.content = this.content.concat();
-           // System.out.println(ctx.getChild(i).getText());
-        }
+
     }
 
     @Override
@@ -731,8 +731,13 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterAtom(Python3Parser.AtomContext ctx) {
+        if (Mapper.isSpecial(ctx.getText())) {
+            this.content = this.content.concat(
+                    Mapper.getSpecial(ctx.getText())
+            );
+        }
 
-       // System.out.println("atom: " + ctx.getText());
+        // System.out.println("atom: " + ctx.getText());
     }
 
     @Override
@@ -830,9 +835,24 @@ public class ParsingListener extends Python3BaseListener {
 
     }
 
+    /**
+     * lista argumentow ma wezly argument, separator, argument, separator.
+     * Kazde nieparzyste dziecko jest separatorem
+     *
+     * @param ctx ArglistContext
+     */
     @Override
     public void enterArglist(Python3Parser.ArglistContext ctx) {
-
+        for (int i = 0; i < ctx.getChildCount(); i++)
+        {
+            if (Mapper.isSpecial(ctx.getChild(i).getText())) {
+                this.content = this.content.concat(
+                        Mapper.getSpecial(ctx.getChild(i).getText())
+                );
+            } else {
+                this.content = this.content.concat(ctx.getChild(i).getText());
+            }
+        }
     }
 
     @Override
@@ -842,7 +862,9 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterArgument(Python3Parser.ArgumentContext ctx) {
-
+//        if (!Mapper.isSpecial(ctx.getText())) {
+//            this.content = this.content.concat(ctx.getText());
+//        }
     }
 
     @Override
@@ -902,7 +924,7 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterStr(Python3Parser.StrContext ctx) {
-        this.content = this.content.concat( ctx.getText() );
+        //
     }
 
     @Override
@@ -927,16 +949,12 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterInteger(Python3Parser.IntegerContext ctx) {
-        this.content = this.content.concat(
-                Mapper.getType("int")
-                + Dictionary.SPACE
-                + ctx.getText()
-        );
+
     }
 
     @Override
     public void exitInteger(Python3Parser.IntegerContext ctx) {
-        this.content = this.content.concat(Dictionary.SEMICOLON);
+
     }
 
     @Override

@@ -46,6 +46,26 @@ public class Mapper {
         buildIn.put("any", "Iterables.any");
     }
 
+    public static boolean isSpecial(String context) {
+        return Mapper.getOperator(context) != null || Mapper.getType(context) != null || Mapper.getBuildIn(context) != null;
+    }
+
+    public static String getSpecial(String context) {
+        if (Mapper.getOperator(context) != null)
+        {
+            return Mapper.getOperator(context);
+        }
+        else if (Mapper.getType(context) != null)
+        {
+            return Mapper.getType(context);
+        }
+        else if (Mapper.getOperator(context) != null)
+        {
+            return Mapper.getOperator(context);
+        } else
+            return "";
+    }
+
     public static String getType(String type) {
         return !types.containsKey(type) ? null : types.get(type.toLowerCase());
     }

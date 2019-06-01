@@ -6,7 +6,7 @@ def scope_test():
         return b + a
 
     spam = "test spam"
-    do_global(10, "asa", " ")
+    do_global(10, "asa", 10.994)
     print("After global assignment:", spam)
 
 scope_test()
