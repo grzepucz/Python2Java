@@ -6,17 +6,15 @@ import java.util.Map;
 public class Mapper {
     private static Map<String, String> types;
     private static Map<String, String> operators;
+    private static Map<String, String> buildIn;
 
     static {
         types = new HashMap<>();
-        types.put("boolean", "int");
-        types.put("char", "char");
-        types.put("word", "int");
-        types.put("integer", "int");
-        types.put("longint", "long");
-        types.put("real", "float");
-        types.put("string", "char*");
-        types.put("def", "function");
+        types.put("bool", "boolean");
+        types.put("list", "List");
+        types.put("float", "float");
+        types.put("int", "int");
+        types.put("boolean", "boolean");
     }
 
     static {
@@ -40,11 +38,23 @@ public class Mapper {
         operators.put("mod", "%");
     }
 
+    static {
+        buildIn = new HashMap<>();
+        buildIn.put("def", "function");
+        buildIn.put("print", "System.out.println");
+        buildIn.put("all", "Iterables.all");
+        buildIn.put("any", "Iterables.any");
+    }
+
     public static String getType(String type) {
-        return types.get(type.toLowerCase());
+        return !types.containsKey(type) ? type : types.get(type.toLowerCase());
     }
 
     public static String getOperator(String operator) {
-        return operators.get(operator.toLowerCase());
+        return !operators.containsKey(operator) ? operator : operators.get(operator.toLowerCase());
+    }
+
+    public static String getBuildIn(String buildInFoo) {
+        return !buildIn.containsKey(buildInFoo) ? buildInFoo : buildIn.get(buildInFoo.toLowerCase());
     }
 }

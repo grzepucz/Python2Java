@@ -1,5 +1,5 @@
 function scope_test () {
-	function do_global (a) {
-		
-	}
+	function do_global (Object a,Object x,Object y) {
+		return b+a ;
+	}int 10;
 }
