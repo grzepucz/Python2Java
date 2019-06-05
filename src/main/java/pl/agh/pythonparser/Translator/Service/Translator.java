@@ -27,7 +27,10 @@ public class Translator implements Translatable {
                 new FileAccessor().read(path)
         ).build();
 
-        ParseTreeWalker.DEFAULT.walk(new ParsingListener(), parser.file_input());
+        ParseTreeWalker.DEFAULT.walk(
+                new ParsingListener(),
+                parser.file_input()
+        );
 
         return "";
     }

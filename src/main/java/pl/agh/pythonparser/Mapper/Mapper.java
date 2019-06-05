@@ -40,10 +40,10 @@ public class Mapper {
 
     static {
         buildIn = new HashMap<>();
-        buildIn.put("def", "function");
         buildIn.put("print", "System.out.println");
         buildIn.put("all", "Iterables.all");
         buildIn.put("any", "Iterables.any");
+        buildIn.put("self", "this");
     }
 
     public static boolean isSpecial(String context) {
@@ -59,9 +59,9 @@ public class Mapper {
         {
             return Mapper.getType(context);
         }
-        else if (Mapper.getOperator(context) != null)
+        else if (Mapper.getBuildIn(context) != null)
         {
-            return Mapper.getOperator(context);
+            return Mapper.getBuildIn(context);
         } else
             return "";
     }

@@ -3,6 +3,7 @@ package pl.agh.pythonparser.Listener;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ErrorNode;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import pl.agh.io.FileAccessor;
 import pl.agh.pythonparser.Mapper.Dictionary;
@@ -146,7 +147,11 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterTfpdef(Python3Parser.TfpdefContext ctx) {
-        this.content = this.content.concat("Object " + ctx.getText());
+        if (Mapper.isSpecial(ctx.getText())) {
+            //this.content = this.content.concat(Mapper.getSpecial(ctx.getText()));
+        } else {
+            this.content = this.content.concat("Object " + ctx.getText());
+        }
     }
 
     @Override
@@ -463,12 +468,12 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterFor_stmt(Python3Parser.For_stmtContext ctx) {
-
+        this.content = this.content.concat("for " + Dictionary.OPEN_BRACKET);
     }
 
     @Override
     public void exitFor_stmt(Python3Parser.For_stmtContext ctx) {
-
+        this.content = this.content.concat(Dictionary.CLOSE_BRACE);
     }
 
     @Override
@@ -515,7 +520,7 @@ public class ParsingListener extends Python3BaseListener {
     public void enterSuite(Python3Parser.SuiteContext ctx) {
         this.depth++;
 
-        //this.content = this.content.concat(Dictionary.NL);
+        this.content = this.content.concat(Dictionary.NL);
 
         for(int i = 0; i < this.depth; i++) {
             this.content = this.content.concat(Dictionary.TAB);
@@ -527,6 +532,7 @@ public class ParsingListener extends Python3BaseListener {
     public void exitSuite(Python3Parser.SuiteContext ctx) {
         this.depth--;
         this.content = this.content.concat(Dictionary.NL);
+        //this.content = this.content.concat(Dictionary.CLOSE_BRACE);
     }
 
     @Override
@@ -601,10 +607,7 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterComparison(Python3Parser.ComparisonContext ctx) {
-        System.out.println("INSIDE COMPARISON");
-        for (int i = 0; i < ctx.getChildCount(); i++) {
-           // System.out.println(ctx.getChild(i).getText());
-        }
+
     }
 
     @Override
@@ -614,7 +617,11 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterComp_op(Python3Parser.Comp_opContext ctx) {
-
+        this.content = this.content.concat(
+                Dictionary.SPACE
+                + Dictionary.COMPARE
+                + Dictionary.SPACE
+        );
     }
 
     @Override
@@ -732,9 +739,9 @@ public class ParsingListener extends Python3BaseListener {
     @Override
     public void enterAtom(Python3Parser.AtomContext ctx) {
         if (Mapper.isSpecial(ctx.getText())) {
-            this.content = this.content.concat(
-                    Mapper.getSpecial(ctx.getText())
-            );
+//            this.content = this.content.concat(
+//                    Mapper.getSpecial(ctx.getText())
+//            );
         }
 
         // System.out.println("atom: " + ctx.getText());
@@ -747,12 +754,20 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterTestlist_comp(Python3Parser.Testlist_compContext ctx) {
+        if (ctx.getChildCount() > 1) {
+            this.content = this.content.concat(Dictionary.OPEN_SQ_BRACKET);
 
+            for (int i = 0; i < ctx.getChildCount(); i++) {
+                this.content = this.content.concat(ctx.getChild(i).getText());
+            }
+        }
     }
 
     @Override
     public void exitTestlist_comp(Python3Parser.Testlist_compContext ctx) {
-
+        if (ctx.getChildCount() > 1) {
+            this.content = this.content.concat(Dictionary.CLOSE_SQ_BRACKET);
+        }
     }
 
     @Override
@@ -797,7 +812,15 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterExprlist(Python3Parser.ExprlistContext ctx) {
-
+        if (ctx.getChild(Python3Parser.IntegerContext.class, 20) != null) {
+            this.content = this.content.concat("int " + ctx.getText());
+        } else if (ctx.getChild(Python3Parser.NumberContext.class, 20) != null) {
+            this.content = this.content.concat("float " + ctx.getText());
+        } else if (ctx.getChild(Python3Parser.StrContext.class, 20) != null) {
+            this.content = this.content.concat("String " + ctx.getText());
+        } else {
+            this.content = this.content.concat("Obj " + ctx.getText());
+        }
     }
 
     @Override
@@ -807,12 +830,20 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterTestlist(Python3Parser.TestlistContext ctx) {
-
+        if (ctx.getChild(Python3Parser.Testlist_compContext.class, 20) != null) {
+            this.content = this.content.concat("comp " + ctx.getText());
+        } else {
+            this.content = this.content.concat(" in ");
+        }
     }
 
     @Override
     public void exitTestlist(Python3Parser.TestlistContext ctx) {
-
+        this.content = this.content.concat(
+                Dictionary.CLOSE_BRACKET
+                + Dictionary.SPACE
+                + Dictionary.OPEN_BRACE
+        );
     }
 
     @Override
@@ -934,6 +965,7 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterNumber(Python3Parser.NumberContext ctx) {
+        System.out.println("Number index: " + ctx.getRuleIndex());
         if (ctx.getChild(0) instanceof Python3Parser.IntegerContext) {
 //            this.content = this.content.concat(
 //                    Mapper.getType("int")
@@ -949,7 +981,7 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterInteger(Python3Parser.IntegerContext ctx) {
-
+        System.out.println("Int index: " + ctx.getRuleIndex());
     }
 
     @Override

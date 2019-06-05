@@ -1,5 +1,17 @@
-function scope_test () {
-	function do_global (Object a,Object x,Object y) {
-		return b+a ;
-	}int 10;
+for (int num in [1,2,3]) {
+	System.out.println('Current number :',num);
+	
 }
+["raz","dwa","trzy"];
+for (int fruit in ) {
+	System.out.println('Current fruit :',fruit);
+	
+}
+for (int fruit in range(len(fruits)len(fruits))) {
+	System.out.println('Current fruit :',fruit);
+	
+}
+;
+ == 
+	System.out.println("Value of expression is 100");
+

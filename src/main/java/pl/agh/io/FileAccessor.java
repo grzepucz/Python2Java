@@ -1,8 +1,12 @@
 package pl.agh.io;
 
+import org.codehaus.plexus.util.FileUtils;
+
 import java.io.FileInputStream;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class FileAccessor implements FileAccessable {
 
@@ -38,11 +42,17 @@ public class FileAccessor implements FileAccessable {
 
         try
         {
-            FileWriter fileWriter = new FileWriter(path + File.separatorChar + filename);
-            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-            bufferedWriter.write(content);
-            bufferedWriter.close();
-            saved = true;
+            if (new File(path + File.separatorChar + filename).isFile()) {
+                FileWriter fileWriter = new FileWriter(path + File.separatorChar + filename);
+                BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+                bufferedWriter.write(content);
+                bufferedWriter.close();
+                saved = true;
+            } else {
+                Files.createFile(Paths.get(path + File.separatorChar + filename));
+                save(content, filename, path);
+            }
+
         }
         catch(IOException ex)
         {

@@ -10,13 +10,13 @@ public class Main {
 
         FileAccessor fileAccessor = new FileAccessor();
 
-        String source = "src/main/resources/python/Class.py";
+        String source = "src/main/resources/python/Loops.py";
 
         Translator translator = new Translator();
         translator.translate(source);
 
         String content = fileAccessor.read(source);
         //fileAccessor.save(content.replace('d', 'c'), "result.txt");
-        fileAccessor.save(new Builder.Tree(content).toStringASCII(), "result_loops_tree.txt");
+        fileAccessor.save(new Builder.Tree(content).toStringASCII(), "result_function_tree.txt");
     }
 }

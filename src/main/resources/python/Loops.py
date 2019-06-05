@@ -1,9 +1,13 @@
-for letter in 'Python':     # traversal of a string sequence
-    print ('Current Letter :', letter)
-print()
-fruits = ['banana', 'apple',  'mango']
+for num in [1,2,3]:
+    print ('Current number :', num)
 
-for fruit in fruits:        # traversal of List sequence
+fruits = ["raz","dwa","trzy"]
+
+for fruit in fruits:
     print ('Current fruit :', fruit)
 
-print ("Good bye!")
+for fruit in range(len(fruits)):
+    print ('Current fruit :', fruit)
+
+var = 20
+if ( var == 100 ) : print("Value of expression is 100")
