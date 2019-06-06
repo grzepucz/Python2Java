@@ -7,5 +7,5 @@ public interface Translatable {
      * @param content String
      * @return String
      */
-    String translate(String content);
+     String translate(String content);
 }

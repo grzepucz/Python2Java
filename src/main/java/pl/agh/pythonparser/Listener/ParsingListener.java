@@ -30,6 +30,9 @@ public class ParsingListener extends Python3BaseListener {
 
     public ParsingListener(String filename) {
         this.filename = filename;
+        this.pythonInfo = "";
+        this.variables = new ArrayList<>();
+        this.depth = 1;
     }
 
     @Override
@@ -44,16 +47,15 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterFile_input(Python3Parser.File_inputContext ctx) {
-        this.pythonInfo = "";
-        this.variables = new ArrayList<>();
-        this.depth = 2;
         this.content = Dictionary.MAIN_CLASS_INTRO;
-        makeIndication(1);
-
+        makeIndication();
+        openSourceClass();
     }
 
     @Override
     public void exitFile_input(Python3Parser.File_inputContext ctx) {
+
+        closeSourceClass();
 
         //TODO popraw to bo to tak nie moze byc
         makeIndication(1);
@@ -1120,7 +1122,7 @@ public class ParsingListener extends Python3BaseListener {
     /**
      * Function to make new lines and tabulation
      */
-    public void makeIndication(){
+    private void makeIndication(){
         this.content = this.content.concat(Dictionary.NL);
         for (int i = 0; i < this.depth; i++) {
             this.content = this.content.concat(Dictionary.TAB);
@@ -1132,10 +1134,22 @@ public class ParsingListener extends Python3BaseListener {
      * Function to make new lines and tabulation
      * @param depth
      */
-    public void makeIndication(int depth){
+    private void makeIndication(int depth){
         this.content = this.content.concat(Dictionary.NL);
         for (int i = 0; i < depth; i++) {
             this.content = this.content.concat(Dictionary.TAB);
         }
+    }
+
+    private void openSourceClass() {
+        this.content = this.content.concat(Dictionary.SOURCE_CLASS_INTRO);
+        this.depth++;
+        makeIndication();
+    }
+
+    private void closeSourceClass() {
+        makeIndication(--this.depth);
+        this.content = this.content.concat(Dictionary.CLOSE_BRACE);
+        makeIndication();
     }
 }
