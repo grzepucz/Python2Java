@@ -1,21 +1,20 @@
 package pl.agh.pythonparser.Listener;
 
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.codehaus.plexus.util.StringUtils;
 import pl.agh.io.FileAccessor;
-import pl.agh.pythonparser.Builder;
 import pl.agh.pythonparser.Mapper.Dictionary;
 import pl.agh.pythonparser.Mapper.Mapper;
 import pl.agh.pythonparser.Python3BaseListener;
-import pl.agh.pythonparser.Python3Lexer;
 import pl.agh.pythonparser.Python3Parser;
 
 import java.util.ArrayList;
+
+import static pl.agh.pythonparser.Mapper.Mapper.*;
 
 public class ParsingListener extends Python3BaseListener {
 
@@ -200,7 +199,7 @@ public class ParsingListener extends Python3BaseListener {
      */
     @Override
     public void enterSimple_stmt(Python3Parser.Simple_stmtContext ctx) {
-        if (ctx.getChild(0).getText().matches("^\"{3}.*")) {
+        if (ctx.getChild(0).getText().matches("(^\"{3}.*)|(^\'{3}.*)")) {
             this.pythonInfo = ctx.getChild(0).getText();
             makeIndication();
             this.content = this.content.concat("/** CLASS_INFO = " + this.pythonInfo + " */");
@@ -254,25 +253,12 @@ public class ParsingListener extends Python3BaseListener {
     public void enterTestlist_star_expr(Python3Parser.Testlist_star_exprContext ctx) {
 
        ParseTree leaf = ctx.getChild(0);
-       boolean isComp = false;
        boolean isFirst = ctx.getParent().getChild(0) == ctx;
 
-       if (!isFirst) {
-           while (leaf.getChildCount() > 0) {
-               if ((leaf instanceof Python3Parser.Arith_exprContext) && (leaf.getChildCount() > 1)) {
-                   isComp = true;
-                   break;
-               } else if ((!isComp) && (leaf.getChildCount() > 1)) {
-                   isComp = true;
-               }
-
-               leaf = leaf.getChild(0);
-           }
-
-           if (!isComp) {
-               this.content = this.content.concat(ctx.getText());
-           }
+       if (!isComplexStatement(leaf) && !isFirst) {
+           this.content = this.content.concat(ctx.getText());
        }
+
     }
 
     @Override
@@ -722,6 +708,12 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterArith_expr(Python3Parser.Arith_exprContext ctx) {
+        if (
+                (hasParentType(ctx.getParent(), Python3Parser.Return_stmtContext.class)
+                && (hasParentType(ctx.getParent(), Python3Parser.ArglistContext.class))
+                ))
+            return;
+
         if (ctx.getChildCount() > 1) {
             for (int i = 0; i < ctx.getChildCount(); i++) {
                 if (Mapper.isSpecial(ctx.getChild(i).getText())) {
@@ -889,7 +881,9 @@ public class ParsingListener extends Python3BaseListener {
 //                this.content = this.content.concat(" in ");
 //            }
         } else if (ctx.getParent() instanceof Python3Parser.Return_stmtContext) {
-
+            if (!isComplexStatement(ctx.getParent().getChild(1))) {
+                this.content = this.content.concat(ctx.getText());
+            }
         } else {
             String text = Mapper.isSpecial(ctx.getText()) ? "" : ctx.getText();
             this.content = this.content.concat(
@@ -946,7 +940,10 @@ public class ParsingListener extends Python3BaseListener {
      */
     @Override
     public void enterArglist(Python3Parser.ArglistContext ctx) {
-        this.content = this.content.concat(Dictionary.OPEN_BRACKET);
+        if (!hasExtendedStatement(ctx, Python3Parser.Arith_exprContext.class)) {
+            this.content = this.content.concat(Dictionary.OPEN_BRACKET);
+        }
+
 
         String prefix = ctx.getParent().getParent().getChild(0).getText();
         // print()
@@ -974,14 +971,16 @@ public class ParsingListener extends Python3BaseListener {
                 );
                 break;
             default:
-                this.content = this.content.concat(ctx.getText());
+               // this.content = this.content.concat(ctx.getText());
         }
 
     }
 
     @Override
     public void exitArglist(Python3Parser.ArglistContext ctx) {
-        this.content = this.content.concat(Dictionary.CLOSE_BRACKET);
+        if (!hasExtendedStatement(ctx, Python3Parser.Arith_exprContext.class)) {
+            this.content = this.content.concat(Dictionary.CLOSE_BRACKET);
+        }
     }
 
     @Override

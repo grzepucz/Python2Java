@@ -2,6 +2,7 @@ package pl.agh.pythonparser.Mapper;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
+import pl.agh.pythonparser.Python3Parser;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -98,6 +99,18 @@ public class Mapper {
        }
 
        return false;
+    }
+
+    public static boolean hasParentType(ParseTree node, Class<? extends ParseTree> pattern) {
+        if (pattern.isInstance(node)) {
+            return true;
+        }
+
+        if (node.getParent() instanceof Python3Parser.File_inputContext) {
+            return false;
+        }
+
+        return hasParentType(node.getParent(), pattern);
     }
 
     public static String getType(String type) {
