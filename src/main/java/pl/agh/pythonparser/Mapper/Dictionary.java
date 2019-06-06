@@ -18,6 +18,8 @@ public class Dictionary {
     public static final String APO = "'";
     public static final String CLASS_DEF = "public class ";
     public static final String RETURN = "return ";
+    public static final String MAIN_CLASS_INTRO = "public class Main {";
+    public static final String MAIN_FUNCTION_INTRO = "public static void main(String[] args) {";
 
 
 }

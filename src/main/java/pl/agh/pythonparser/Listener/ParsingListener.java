@@ -44,14 +44,26 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterFile_input(Python3Parser.File_inputContext ctx) {
-        this.content = "";
         this.pythonInfo = "";
         this.variables = new ArrayList<>();
-        this.depth = 0;
+        this.depth = 2;
+        this.content = Dictionary.MAIN_CLASS_INTRO;
+        makeIndication(1);
+
     }
 
     @Override
     public void exitFile_input(Python3Parser.File_inputContext ctx) {
+
+        //TODO popraw to bo to tak nie moze byc
+        makeIndication(1);
+        this.content = this.content.concat(Dictionary.MAIN_FUNCTION_INTRO);
+        makeIndication(1);
+        makeIndication(1);
+        this.content = this.content.concat(Dictionary.CLOSE_BRACE);
+        makeIndication(0);
+        this.content = this.content.concat(Dictionary.CLOSE_BRACE);
+
         boolean saved = new FileAccessor().save(
                 this.content,
                 this.filename
@@ -163,8 +175,7 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterVarargslist(Python3Parser.VarargslistContext ctx) {
-        System.out.println("enter enterVarargslist");
-        System.out.println(ctx.getText());
+
     }
 
     @Override
@@ -237,10 +248,12 @@ public class ParsingListener extends Python3BaseListener {
                 this.variables.add(ctx.getChild(0).getText());
             }
 
-            this.content = this.content.concat(ctx.getChild(0).getText());
-            this.content = this.content.concat(Dictionary.SPACE);
-            this.content = this.content.concat(ctx.getChild(1).getText());
-            this.content = this.content.concat(Dictionary.SPACE);
+            this.content = this.content.concat(
+                    ctx.getChild(0).getText()
+                            + Dictionary.SPACE
+                            + ctx.getChild(1).getText()
+                            + Dictionary.SPACE
+            );
         }
     }
 
@@ -504,6 +517,7 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void exitFor_stmt(Python3Parser.For_stmtContext ctx) {
+        makeIndication();
         this.content = this.content.concat(Dictionary.CLOSE_BRACE);
     }
 
@@ -557,7 +571,8 @@ public class ParsingListener extends Python3BaseListener {
     @Override
     public void exitSuite(Python3Parser.SuiteContext ctx) {
         this.depth--;
-        this.content = this.content.concat(Dictionary.NL);
+        makeIndication();
+        //this.content = this.content.concat(Dictionary.NL);
     }
 
     @Override
@@ -929,7 +944,8 @@ public class ParsingListener extends Python3BaseListener {
     @Override
     public void exitClassdef(Python3Parser.ClassdefContext ctx) {
         this.content = this.content.concat(Dictionary.CLOSE_BRACE);
-        this.content = this.content.concat(Dictionary.NL);
+//        this.content = this.content.concat(Dictionary.NL);
+        makeIndication();
     }
 
     /**
@@ -970,6 +986,12 @@ public class ParsingListener extends Python3BaseListener {
                         "Math.abs"
                 );
                 break;
+            case "range":
+//                this.content = this.content.replace(
+//                        "Range.between(",
+//                        "Range.between(0, "
+//                );
+//                break;
             default:
                // this.content = this.content.concat(ctx.getText());
         }
@@ -1101,6 +1123,18 @@ public class ParsingListener extends Python3BaseListener {
     public void makeIndication(){
         this.content = this.content.concat(Dictionary.NL);
         for (int i = 0; i < this.depth; i++) {
+            this.content = this.content.concat(Dictionary.TAB);
+        }
+    }
+
+    /**
+     *
+     * Function to make new lines and tabulation
+     * @param depth
+     */
+    public void makeIndication(int depth){
+        this.content = this.content.concat(Dictionary.NL);
+        for (int i = 0; i < depth; i++) {
             this.content = this.content.concat(Dictionary.TAB);
         }
     }

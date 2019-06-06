@@ -10,7 +10,7 @@ public class Main {
 
         FileAccessor fileAccessor = new FileAccessor();
 
-        String source = "src/main/resources/python/Fibo.py";
+        String source = "src/main/resources/python/all.py";
 
         Translator translator = new Translator();
         translator.translate(source);

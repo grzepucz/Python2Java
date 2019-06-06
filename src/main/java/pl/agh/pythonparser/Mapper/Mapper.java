@@ -87,6 +87,10 @@ public class Mapper {
         }
     }
 
+    public static boolean isLeaf(ParseTree node) {
+        return !isComplexStatement(node);
+    }
+
     public static boolean hasExtendedStatement(ParseTree node, Class<? extends ParseTree> pattern) {
        if (pattern.isInstance(node) && (node.getChildCount() > 1)) {
            return true;
@@ -103,6 +107,19 @@ public class Mapper {
 
     public static boolean hasParentType(ParseTree node, Class<? extends ParseTree> pattern) {
         if (pattern.isInstance(node)) {
+            return true;
+        }
+
+        if (node.getParent() instanceof Python3Parser.File_inputContext) {
+            return false;
+        }
+
+        return hasParentType(node.getParent(), pattern);
+    }
+
+
+    public static boolean hasComplexParentType(ParseTree node, Class<? extends ParseTree> pattern) {
+        if (pattern.isInstance(node) && (node.getChildCount() > 1)) {
             return true;
         }
 
