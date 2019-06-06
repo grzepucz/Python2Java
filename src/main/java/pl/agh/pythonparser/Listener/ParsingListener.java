@@ -1,23 +1,29 @@
 package pl.agh.pythonparser.Listener;
 
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.codehaus.plexus.util.StringUtils;
 import pl.agh.io.FileAccessor;
+import pl.agh.pythonparser.Builder;
 import pl.agh.pythonparser.Mapper.Dictionary;
 import pl.agh.pythonparser.Mapper.Mapper;
 import pl.agh.pythonparser.Python3BaseListener;
+import pl.agh.pythonparser.Python3Lexer;
 import pl.agh.pythonparser.Python3Parser;
 
-import java.util.Map;
+import java.util.ArrayList;
 
 public class ParsingListener extends Python3BaseListener {
 
     private String filename;
     private String content;
     private int depth;
+    ArrayList<String> variables = new ArrayList<>();
+    private String pythonInfo;
 
     public ParsingListener() {
         this("result");
@@ -40,6 +46,8 @@ public class ParsingListener extends Python3BaseListener {
     @Override
     public void enterFile_input(Python3Parser.File_inputContext ctx) {
         this.content = "";
+        this.pythonInfo = "";
+        this.variables = new ArrayList<>();
         this.depth = 0;
     }
 
@@ -99,20 +107,19 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterFuncdef(@NotNull Python3Parser.FuncdefContext ctx) {
-        this.content = this.content.concat( Mapper.getBuildIn(ctx.DEF().getText()) + Dictionary.SPACE );
-        if (Mapper.getBuildIn(ctx.NAME().getText()) != null) {
-            this.content = this.content.concat( Mapper.getBuildIn(ctx.NAME().getText()) + Dictionary.SPACE );
-        } else {
-            this.content = this.content.concat( ctx.NAME().getText() + Dictionary.SPACE );
+        makeIndication();
+
+        if (Mapper.isSpecial(ctx.getChild(0).getText())) {
+            this.content = this.content.concat("public ");
+            this.content = this.content.concat(Mapper.getSpecial(ctx.getChild(0).getText()));
+            this.content = this.content.concat(Dictionary.SPACE);
+            this.content = this.content.concat(ctx.getChild(1).getText());
         }
     }
 
     @Override
     public void exitFuncdef(Python3Parser.FuncdefContext ctx) {
-        for(int i = 0; i < this.depth
-                ; i++) {
-            this.content = this.content.concat(Dictionary.TAB);
-        }
+        makeIndication();
         this.content = this.content.concat( "}" );
     }
 
@@ -124,11 +131,7 @@ public class ParsingListener extends Python3BaseListener {
     @Override
     public void exitParameters(Python3Parser.ParametersContext ctx) {
         this.content = this.content.concat(") {");
-        this.content = this.content.concat(Dictionary.NL);
-
-        for (int i = 0; i < this.depth; i++) {
-            this.content = this.content.concat(Dictionary.TAB);
-        }
+        makeIndication();
     }
 
     @Override
@@ -187,15 +190,21 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void exitStmt(Python3Parser.StmtContext ctx) {
-        this.content = this.content.concat(Dictionary.NL);
-        for (int i = 0; i < this.depth; i++) {
-            this.content = this.content.concat(Dictionary.TAB);
-        }
+        makeIndication();
     }
 
+    /**
+     * Python ma wbudowaną funkcję wyświetlającą informacje zaczynające się """ info """
+     * oraz funckcję, która te informacje wywietla.
+     * @param ctx
+     */
     @Override
     public void enterSimple_stmt(Python3Parser.Simple_stmtContext ctx) {
-
+        if (ctx.getChild(0).getText().matches("^\"{3}.*")) {
+            this.pythonInfo = ctx.getChild(0).getText();
+            makeIndication();
+            this.content = this.content.concat("/** CLASS_INFO = " + this.pythonInfo + " */");
+        }
     }
 
     @Override
@@ -215,7 +224,25 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterExpr_stmt(Python3Parser.Expr_stmtContext ctx) {
+        if (ctx.getChildCount() > 1) {
+            if (!this.variables.contains(ctx.getChild(0).getText())) {
+                if (StringUtils.isNumeric(ctx.getChild(2).getText())) {
+                    this.content = this.content.concat("double" + Dictionary.SPACE);
+                } else if (
+                        ctx.getChild(2).getText().startsWith(Dictionary.QUOTA)
+                                || ctx.getChild(2).getText().startsWith(Dictionary.APO)
+                ) {
+                    this.content = this.content.concat("String" + Dictionary.SPACE);
+                }
 
+                this.variables.add(ctx.getChild(0).getText());
+            }
+
+            this.content = this.content.concat(ctx.getChild(0).getText());
+            this.content = this.content.concat(Dictionary.SPACE);
+            this.content = this.content.concat(ctx.getChild(1).getText());
+            this.content = this.content.concat(Dictionary.SPACE);
+        }
     }
 
     @Override
@@ -225,7 +252,27 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterTestlist_star_expr(Python3Parser.Testlist_star_exprContext ctx) {
-       // this.content = this.content.concat(ctx.getText());
+
+       ParseTree leaf = ctx.getChild(0);
+       boolean isComp = false;
+       boolean isFirst = ctx.getParent().getChild(0) == ctx;
+
+       if (!isFirst) {
+           while (leaf.getChildCount() > 0) {
+               if ((leaf instanceof Python3Parser.Arith_exprContext) && (leaf.getChildCount() > 1)) {
+                   isComp = true;
+                   break;
+               } else if ((!isComp) && (leaf.getChildCount() > 1)) {
+                   isComp = true;
+               }
+
+               leaf = leaf.getChild(0);
+           }
+
+           if (!isComp) {
+               this.content = this.content.concat(ctx.getText());
+           }
+       }
     }
 
     @Override
@@ -295,9 +342,7 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterReturn_stmt(Python3Parser.Return_stmtContext ctx) {
-        for (int i = 0; i < ctx.getChildCount(); i++) {
-            this.content = this.content.concat(ctx.getChild(i).getText() + Dictionary.SPACE);
-        }
+        this.content = this.content.concat(Dictionary.RETURN);
     }
 
     @Override
@@ -448,7 +493,7 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterIf_stmt(Python3Parser.If_stmtContext ctx) {
-        System.out.println("Inside if");
+
     }
 
     @Override
@@ -520,19 +565,13 @@ public class ParsingListener extends Python3BaseListener {
     public void enterSuite(Python3Parser.SuiteContext ctx) {
         this.depth++;
 
-        this.content = this.content.concat(Dictionary.NL);
-
-        for(int i = 0; i < this.depth; i++) {
-            this.content = this.content.concat(Dictionary.TAB);
-        }
-
+        makeIndication();
     }
 
     @Override
     public void exitSuite(Python3Parser.SuiteContext ctx) {
         this.depth--;
         this.content = this.content.concat(Dictionary.NL);
-        //this.content = this.content.concat(Dictionary.CLOSE_BRACE);
     }
 
     @Override
@@ -607,7 +646,9 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterComparison(Python3Parser.ComparisonContext ctx) {
-
+        if (ctx.getChildCount() > 1) {
+            this.content = this.content.concat(ctx.getText());
+        }
     }
 
     @Override
@@ -617,11 +658,11 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterComp_op(Python3Parser.Comp_opContext ctx) {
-        this.content = this.content.concat(
-                Dictionary.SPACE
-                + Dictionary.COMPARE
-                + Dictionary.SPACE
-        );
+//        this.content = this.content.concat(
+//                Dictionary.SPACE
+//                + Dictionary.COMPARE
+//                + Dictionary.SPACE
+//        );
     }
 
     @Override
@@ -681,7 +722,15 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterArith_expr(Python3Parser.Arith_exprContext ctx) {
-
+        if (ctx.getChildCount() > 1) {
+            for (int i = 0; i < ctx.getChildCount(); i++) {
+                if (Mapper.isSpecial(ctx.getChild(i).getText())) {
+                    this.content = this.content.concat(Mapper.getSpecial(ctx.getChild(i).getText()) + Dictionary.SPACE);
+                } else {
+                    this.content = this.content.concat(ctx.getChild(i).getText() + Dictionary.SPACE);
+                }
+            }
+        }
     }
 
     @Override
@@ -718,15 +767,11 @@ public class ParsingListener extends Python3BaseListener {
     public void enterPower(Python3Parser.PowerContext ctx) {
         if (ctx.getChildCount() > 1) {
             if (Mapper.getBuildIn(ctx.getChild(0).getText()) != null) {
-                this.content = this.content.concat(
-                        Mapper.getBuildIn(
-                                ctx.getChild(0).getText()
-                        )
-                );
+                this.content = this.content.concat( Mapper.getBuildIn( ctx.getChild(0).getText() ) );
             } else {
-                this.content = this.content.concat(
-                        ctx.getChild(0).getText()
-                );
+//                this.content = this.content.concat(
+//                        ctx.getChild(0).getText()
+//                );
             }
         }
     }
@@ -754,30 +799,34 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterTestlist_comp(Python3Parser.Testlist_compContext ctx) {
-        if (ctx.getChildCount() > 1) {
-            this.content = this.content.concat(Dictionary.OPEN_SQ_BRACKET);
 
-            for (int i = 0; i < ctx.getChildCount(); i++) {
-                this.content = this.content.concat(ctx.getChild(i).getText());
-            }
-        }
+//        for (int i = 0; i < ctx.getChildCount(); i++) {
+//            this.content = this.content.concat(ctx.getChild(i).getText());
+//        }
     }
 
     @Override
     public void exitTestlist_comp(Python3Parser.Testlist_compContext ctx) {
-        if (ctx.getChildCount() > 1) {
-            this.content = this.content.concat(Dictionary.CLOSE_SQ_BRACKET);
-        }
+//        if (ctx.getChildCount() > 1) {
+//            this.content = this.content.concat(Dictionary.CLOSE_SQ_BRACKET);
+//        }
     }
 
     @Override
     public void enterTrailer(Python3Parser.TrailerContext ctx) {
-        this.content = this.content.concat(ctx.getChild(0).getText());
+       if ((ctx.getChildCount() > 1) && (ctx.getChild(1).getText().equals("__doc__"))) {
+
+           this.content =
+                   this.content.replace(
+                           ctx.getParent(). getText(),
+                           this.pythonInfo.replace("\"\"", "")
+                   );
+       }
     }
 
     @Override
     public void exitTrailer(Python3Parser.TrailerContext ctx) {
-        this.content = this.content.concat(ctx.getChild(ctx.getChildCount()-1).getText());
+       // this.content = this.content.concat(Dictionary.CLOSE_BRACKET);
     }
 
     @Override
@@ -812,14 +861,17 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterExprlist(Python3Parser.ExprlistContext ctx) {
-        if (ctx.getChild(Python3Parser.IntegerContext.class, 20) != null) {
-            this.content = this.content.concat("int " + ctx.getText());
-        } else if (ctx.getChild(Python3Parser.NumberContext.class, 20) != null) {
-            this.content = this.content.concat("float " + ctx.getText());
-        } else if (ctx.getChild(Python3Parser.StrContext.class, 20) != null) {
-            this.content = this.content.concat("String " + ctx.getText());
+        ParseTree testlist = ctx.getParent().getChild(3);
+        if ( testlist != null) {
+            if (testlist.getText().startsWith(Dictionary.APO) || testlist.getText().startsWith(Dictionary.QUOTA)) {
+                this.content = this.content.concat("char " + ctx.getText());
+            } else if (Character.isDigit(testlist.getText().charAt(1))) {
+                this.content = this.content.concat("int " + ctx.getText());
+            } else {
+                this.content = this.content.concat("Object " + ctx.getText());
+            }
         } else {
-            this.content = this.content.concat("Obj " + ctx.getText());
+            this.content = this.content.concat("Object " + ctx.getText());
         }
     }
 
@@ -830,20 +882,36 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterTestlist(Python3Parser.TestlistContext ctx) {
-        if (ctx.getChild(Python3Parser.Testlist_compContext.class, 20) != null) {
-            this.content = this.content.concat("comp " + ctx.getText());
+        if (ctx.getChildCount() > 1) {
+//            if (ctx.getChild(Python3Parser.Testlist_compContext.class, 0) != null) {
+//                this.content = this.content.concat("comp " + ctx.getText());
+//            } else {
+//                this.content = this.content.concat(" in ");
+//            }
+        } else if (ctx.getParent() instanceof Python3Parser.Return_stmtContext) {
+
         } else {
-            this.content = this.content.concat(" in ");
+            String text = Mapper.isSpecial(ctx.getText()) ? "" : ctx.getText();
+            this.content = this.content.concat(
+                    Dictionary.SPACE
+                    + "in"
+                    + Dictionary.SPACE
+                    + text
+            );
         }
     }
 
     @Override
     public void exitTestlist(Python3Parser.TestlistContext ctx) {
-        this.content = this.content.concat(
-                Dictionary.CLOSE_BRACKET
-                + Dictionary.SPACE
-                + Dictionary.OPEN_BRACE
-        );
+        if (ctx.getParent() instanceof Python3Parser.Return_stmtContext) {
+
+        } else {
+            this.content = this.content.concat(
+                    Dictionary.CLOSE_BRACKET
+                    + Dictionary.SPACE
+                    + Dictionary.OPEN_BRACE
+            );
+        }
     }
 
     @Override
@@ -858,37 +926,62 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterClassdef(Python3Parser.ClassdefContext ctx) {
-       // System.out.println("INSIDE CLASS DEF");
+        this.content = this.content.concat(Dictionary.CLASS_DEF);
+        this.content = this.content.concat(ctx.getChild(1).getText());
+        this.content = this.content.concat(Dictionary.SPACE);
+        this.content = this.content.concat(Dictionary.OPEN_BRACE);
     }
 
     @Override
     public void exitClassdef(Python3Parser.ClassdefContext ctx) {
-
+        this.content = this.content.concat(Dictionary.CLOSE_BRACE);
+        this.content = this.content.concat(Dictionary.NL);
     }
 
     /**
-     * lista argumentow ma wezly argument, separator, argument, separator.
-     * Kazde nieparzyste dziecko jest separatorem
+     * print i System.out.println za bardzo sie roznia od siebie, trzeba dopasowac jak ponizej, konkatenacja
+     * stringów ze znakiem +
      *
      * @param ctx ArglistContext
      */
     @Override
     public void enterArglist(Python3Parser.ArglistContext ctx) {
-        for (int i = 0; i < ctx.getChildCount(); i++)
-        {
-            if (Mapper.isSpecial(ctx.getChild(i).getText())) {
-                this.content = this.content.concat(
-                        Mapper.getSpecial(ctx.getChild(i).getText())
+        this.content = this.content.concat(Dictionary.OPEN_BRACKET);
+
+        String prefix = ctx.getParent().getParent().getChild(0).getText();
+        // print()
+        switch (prefix) {
+            case "print":
+                for (int i = 0; i < ctx.getChildCount(); i++) {
+                    if (ctx.getChild(i).getText().equals(Dictionary.COMMA)) {
+                        this.content = this.content.concat(" + ");
+                    } else {
+                        this.content = this.content.concat(ctx.getChild(i).getText());
+                    }
+                }
+                break;
+            case "len":
+                this.content = this.content.replace(
+                        "size",
+                        ctx.getChild(0).getText()
+                                + Dictionary.DOT + "size"
                 );
-            } else {
-                this.content = this.content.concat(ctx.getChild(i).getText());
-            }
+                break;
+            case "abs":
+                this.content = this.content.replace(
+                        "abs",
+                        "Math.abs"
+                );
+                break;
+            default:
+                this.content = this.content.concat(ctx.getText());
         }
+
     }
 
     @Override
     public void exitArglist(Python3Parser.ArglistContext ctx) {
-
+        this.content = this.content.concat(Dictionary.CLOSE_BRACKET);
     }
 
     @Override
@@ -965,13 +1058,7 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterNumber(Python3Parser.NumberContext ctx) {
-        System.out.println("Number index: " + ctx.getRuleIndex());
-        if (ctx.getChild(0) instanceof Python3Parser.IntegerContext) {
-//            this.content = this.content.concat(
-//                    Mapper.getType("int")
-//                    + ctx.getText()
-//            );
-        }
+
     }
 
     @Override
@@ -981,7 +1068,7 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterInteger(Python3Parser.IntegerContext ctx) {
-        System.out.println("Int index: " + ctx.getRuleIndex());
+
     }
 
     @Override
@@ -1007,5 +1094,15 @@ public class ParsingListener extends Python3BaseListener {
     @Override
     public void exitEveryRule(ParserRuleContext parserRuleContext) {
 
+    }
+
+    /**
+     * Function to make new lines and tabulation
+     */
+    public void makeIndication(){
+        this.content = this.content.concat(Dictionary.NL);
+        for (int i = 0; i < this.depth; i++) {
+            this.content = this.content.concat(Dictionary.TAB);
+        }
     }
 }

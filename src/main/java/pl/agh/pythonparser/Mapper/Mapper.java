@@ -2,6 +2,7 @@ package pl.agh.pythonparser.Mapper;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class Mapper {
     private static Map<String, String> types;
@@ -41,13 +42,19 @@ public class Mapper {
     static {
         buildIn = new HashMap<>();
         buildIn.put("print", "System.out.println");
+        buildIn.put("len", "size");
+        buildIn.put("range", "Range.between");
         buildIn.put("all", "Iterables.all");
         buildIn.put("any", "Iterables.any");
         buildIn.put("self", "this");
+        buildIn.put("__doc__", "doc");
     }
 
     public static boolean isSpecial(String context) {
-        return Mapper.getOperator(context) != null || Mapper.getType(context) != null || Mapper.getBuildIn(context) != null;
+        return Mapper.getOperator(context) != null
+                || Mapper.getType(context) != null
+                || Mapper.getBuildIn(context) != null
+                || Pattern.compile("^[a-z]+\\(.*\\)$").matcher(context).matches();
     }
 
     public static String getSpecial(String context) {
