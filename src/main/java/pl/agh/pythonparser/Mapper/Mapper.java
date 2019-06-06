@@ -1,5 +1,8 @@
 package pl.agh.pythonparser.Mapper;
 
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.tree.ParseTree;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -71,6 +74,30 @@ public class Mapper {
             return Mapper.getBuildIn(context);
         } else
             return "";
+    }
+
+    public static boolean isComplexStatement(ParseTree node) {
+        if (node.getChildCount() < 1) {
+            return false;
+        } else if (node.getChildCount() == 1) {
+            return isComplexStatement(node.getChild(0));
+        } else {
+            return true;
+        }
+    }
+
+    public static boolean hasExtendedStatement(ParseTree node, Class<? extends ParseTree> pattern) {
+       if (pattern.isInstance(node) && (node.getChildCount() > 1)) {
+           return true;
+       }
+
+       if (node.getChildCount() < 1) {
+           return false;
+       } else if (node.getChildCount() >= 1) {
+           return hasExtendedStatement(node.getChild(0), pattern);
+       }
+
+       return false;
     }
 
     public static String getType(String type) {
