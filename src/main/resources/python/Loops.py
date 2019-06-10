@@ -10,4 +10,12 @@ for fruit in range(len(fruits)):
     print ('Current fruit :', fruit)
 
 var = 20
-if ( var == 100 ) : print("Value of expression is 100")
+if (var == 100) and (var > 50) :
+    print("Value of expression is 100")
+elif (bool1 and bool2) :
+    print("Value of expression is 50")
+else :
+    print("Else")
+
+while n > 0:
+    print(n)

@@ -1,17 +1,42 @@
-for (int num in [1,2,3]) {
-	System.out.println('Current number :',num);
+public class Main {
+	public class Source {
+		for (int num in [1,2,3]) {
+			System.out.println('Current number :' + num);
+			
+		
+		}
+		fruits = ;
+		for (Object fruit in fruits) {
+			System.out.println('Current fruit :' + fruit);
+			
+		
+		}
+		for (Object fruit in Range.between(fruits.size())) {
+			System.out.println('Current fruit :' + fruit);
+			
+		
+		}
+		double var = 20;
+		if (var==100var>50
+			System.out.println("Value of expression is 100");
+			
+		}
+		else if (
+			System.out.println("Value of expression is 50");
+			
+		}
+		else{
+			System.out.println("Else");
+			
+		}
+		while (n>0
+			System.out.println(n);
+			
+		}
+		
+	}
 	
-}
-["raz","dwa","trzy"];
-for (int fruit in ) {
-	System.out.println('Current fruit :',fruit);
+	public static void main(String[] args) {
 	
+	}
 }
-for (int fruit in range(len(fruits)len(fruits))) {
-	System.out.println('Current fruit :',fruit);
-	
-}
-;
- == 
-	System.out.println("Value of expression is 100");
-

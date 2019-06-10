@@ -7,10 +7,9 @@ import static pl.agh.pythonparser.Translator.Service.Translator.translate;
 
 public class Main {
 
-
     public static void main(String[] args) {
 
-        String source = "src/main/resources/python/Loops.py";
+        String source = "src/main/resources/python/try.py";
         String resultFile = "result";
         String sourceTree = "result_function_tree.txt";
 

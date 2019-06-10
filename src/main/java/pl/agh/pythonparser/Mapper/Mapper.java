@@ -4,6 +4,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 import pl.agh.pythonparser.Python3Parser;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -96,10 +97,16 @@ public class Mapper {
            return true;
        }
 
-       if (node.getChildCount() < 1) {
+       if (node.getChildCount() == 0) {
            return false;
-       } else if (node.getChildCount() >= 1) {
-           return hasExtendedStatement(node.getChild(0), pattern);
+       } else if (node.getChildCount() == 1) {
+            return hasExtendedStatement(node.getChild(0), pattern);
+       } else if (node.getChildCount() > 1) {
+           for (int i = 0; i < node.getChildCount(); i++) {
+               if (hasExtendedStatement(node.getChild(i), pattern)) {
+                   return true;
+               }
+           }
        }
 
        return false;
@@ -118,7 +125,7 @@ public class Mapper {
     }
 
 
-    public static boolean hasComplexParentType(ParseTree node, Class<? extends ParseTree> pattern) {
+    public static boolean hasComplexParentType (ParseTree node, Class<? extends ParseTree> pattern) {
         if (pattern.isInstance(node) && (node.getChildCount() > 1)) {
             return true;
         }
@@ -128,6 +135,73 @@ public class Mapper {
         }
 
         return hasParentType(node.getParent(), pattern);
+    }
+
+    public static ParseTree getExtendedChild (ParseTree node, Class<? extends ParseTree> pattern) {
+        if (pattern.isInstance(node) && (node.getChildCount() > 1)) {
+            return node;
+        }
+
+        if (node.getChildCount() == 0) {
+            return null;
+        } else if (node.getChildCount() == 1) {
+            return getExtendedChild(node.getChild(0), pattern);
+        } else if (node.getChildCount() > 1) {
+            for (int i = 0; i < node.getChildCount(); i++) {
+                if (getExtendedChild(node.getChild(i), pattern) != null) {
+                    return getExtendedChild(node.getChild(i), pattern);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public static ParseTree getLeaf (ParseTree node) {
+        if (node.getChildCount() == 0) {
+            return node;
+        } else if (node.getChild(0).getChildCount() == 0) {
+            return getLeaf(node.getChild(1));
+        }
+
+        return getLeaf(node.getChild(0));
+    }
+
+
+    /**
+     * Drugie dziecko to zwracane wyrazenie
+     * @param node
+     * @return
+     */
+    public static String getFunctionType (ParseTree node, ArrayList<String> vars) {
+        boolean hasArithmetic = hasExtendedStatement(node.getChild(1), Python3Parser.Arith_exprContext.class);
+        boolean hasComparision = hasExtendedStatement(node.getChild(1), Python3Parser.ComparisonContext.class);
+        boolean isVariable = vars.contains(node.getChild(1).getText());
+        boolean isString = node.getChild(1).getText().startsWith("\"") || node.getChild(1).getText().startsWith("'");
+
+        if (hasArithmetic && hasComparision) {
+            return "boolean";
+        } else if (hasArithmetic && isVariable) {
+            return "Object";
+        } else if (isString) {
+            return "String";
+        } else if (hasArithmetic) {
+            return "Double";
+        }
+
+        return "void";
+    }
+
+    public static ParseTree getComplexParent (ParseTree node, Class<? extends ParseTree> pattern) {
+        if (pattern.isInstance(node) && (node.getChildCount() > 1)) {
+            return node;
+        }
+
+        if (node instanceof Python3Parser.File_inputContext) {
+            return null;
+        }
+
+        return getComplexParent(node.getParent(), pattern);
     }
 
     public static String getType(String type) {
