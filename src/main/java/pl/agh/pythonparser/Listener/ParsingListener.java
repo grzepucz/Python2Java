@@ -488,23 +488,15 @@ public class ParsingListener extends Python3BaseListener {
     }
 
     @Override
-    public void enterAssert_stmt(Python3Parser.Assert_stmtContext ctx) {
-        System.out.println("ASSERTION");
+    public void enterFinally_suite(Python3Parser.Finally_suiteContext ctx) {
+        this.content = this.content.concat(Dictionary.SPACE + "finally" + Dictionary.SPACE + Dictionary.OPEN_BRACE);
+        makeIndication();
     }
 
     @Override
-    public void exitAssert_stmt(Python3Parser.Assert_stmtContext ctx) {
-
-    }
-
-    @Override
-    public void enterCompound_stmt(Python3Parser.Compound_stmtContext ctx) {
-
-    }
-
-    @Override
-    public void exitCompound_stmt(Python3Parser.Compound_stmtContext ctx) {
-
+    public void exitFinally_suite(Python3Parser.Finally_suiteContext ctx) {
+        makeIndication();
+        //this.content = this.content.concat(Dictionary.CLOSE_BRACE);
     }
 
     @Override
@@ -574,19 +566,42 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterExcept_clause(Python3Parser.Except_clauseContext ctx) {
-        makeIndication();
-        this.content = this.content.concat("catch (Exception ");
+        this.content = this.content.concat(
+                Dictionary.SPACE
+                        + "catch "
+                        + Dictionary.OPEN_BRACKET
+                        + ctx.getChild(1).getText()
+            );
         /*
             Jeżeli występuje as
          */
         if ((ctx.getChildCount() > 3) && (ctx.getChild(2).getText().equals("as"))) {
-
+            this.content = this.content.concat(Dictionary.SPACE + ctx.getChild(3).getText().toLowerCase());
+        } else {
+            this.content = this.content.concat(Dictionary.SPACE + "ex");
         }
     }
 
     @Override
     public void exitExcept_clause(Python3Parser.Except_clauseContext ctx) {
 
+    }
+
+    @Override
+    public void enterExcept_clause_suite(Python3Parser.Except_clause_suiteContext ctx) {
+        this.content = this.content.concat(Dictionary.CLOSE_BRACKET + Dictionary.SPACE + Dictionary.OPEN_BRACE);
+        makeIndication();
+    }
+
+    @Override
+    public void exitExcept_clause_suite(Python3Parser.Except_clause_suiteContext ctx) {
+        this.content = this.content.concat(Dictionary.CLOSE_BRACE + Dictionary.SPACE );
+    }
+
+    @Override
+    public void exitTry_suite(Python3Parser.Try_suiteContext ctx) {
+        makeIndication();
+        this.content = this.content.concat(Dictionary.CLOSE_BRACE);
     }
 
     @Override

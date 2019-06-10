@@ -408,10 +408,10 @@ for_stmt
 ///       ['finally' ':' suite] |
 ///      'finally' ':' suite))
 try_stmt
- : TRY ':' suite ( ( except_clause ':' suite )+ 
-                   ( ELSE ':' suite )? 
-                   ( FINALLY ':' suite )?
-                 | FINALLY ':' suite
+ : TRY ':' try_suite ( ( except_clause ':' except_clause_suite )+
+                   ( ELSE ':' try_else_suite )?
+                   ( FINALLY ':' finally_suite )?
+                 | FINALLY ':' finally_suite
                  )
  ;
 
@@ -435,6 +435,22 @@ except_clause
 suite
  : simple_stmt 
  | NEWLINE INDENT stmt+ DEDENT
+ ;
+
+except_clause_suite
+ : suite
+ ;
+
+try_suite
+ : suite
+ ;
+
+finally_suite
+ : suite
+ ;
+
+try_else_suite
+ : suite
  ;
 
 /// test: or_test ['if' or_test 'else' test] | lambdef
