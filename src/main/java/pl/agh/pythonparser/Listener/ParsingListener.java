@@ -540,12 +540,16 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterTry_stmt(Python3Parser.Try_stmtContext ctx) {
-
+        this.content = this.content.concat("try " + Dictionary.OPEN_BRACE);
+        this.depth++;
+        makeIndication();
     }
 
     @Override
     public void exitTry_stmt(Python3Parser.Try_stmtContext ctx) {
-
+        this.content = this.content.concat(Dictionary.CLOSE_BRACE);
+        this.depth--;
+        makeIndication();
     }
 
     @Override
@@ -570,7 +574,14 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterExcept_clause(Python3Parser.Except_clauseContext ctx) {
+        makeIndication();
+        this.content = this.content.concat("catch (Exception ");
+        /*
+            Jeżeli występuje as
+         */
+        if ((ctx.getChildCount() > 3) && (ctx.getChild(2).getText().equals("as"))) {
 
+        }
     }
 
     @Override
@@ -1005,7 +1016,7 @@ public class ParsingListener extends Python3BaseListener {
 //                );
 //                break;
             default:
-               // this.content = this.content.concat(ctx.getText());
+               this.content = this.content.concat(ctx.getText());
         }
 
     }
