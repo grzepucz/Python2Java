@@ -218,11 +218,6 @@ public class ParsingListener extends Python3BaseListener {
         makeIndication();
     }
 
-    /**
-     * Python ma wbudowaną funkcję wyświetlającą informacje zaczynające się """ info """
-     * oraz funckcję, która te informacje wywietla.
-     * @param ctx
-     */
     @Override
     public void enterSimple_stmt(Python3Parser.Simple_stmtContext ctx) {
         if (ctx.getChild(0).getText().matches("(^\"{3}.*)|(^\'{3}.*)")) {
@@ -1033,7 +1028,6 @@ public class ParsingListener extends Python3BaseListener {
             default:
                this.content = this.content.concat(ctx.getText());
         }
-
     }
 
     @Override
@@ -1213,6 +1207,27 @@ public class ParsingListener extends Python3BaseListener {
         this.content = this.content.concat(Dictionary.CLOSE_BRACE);
         makeIndication();
     }
+
+    @Override
+    public void enterElif_stmt(Python3Parser.Elif_stmtContext ctx){
+        this.content = this.content.concat("else if" + Dictionary.SPACE);
+    }
+
+    @Override
+    public void exitElif_stmt(Python3Parser.Elif_stmtContext ctx){
+
+    }
+
+    @Override
+    public void enterElse_stmt(Python3Parser.Else_stmtContext ctx){
+        this.content = this.content.concat(ctx.ELSE().getText());
+    }
+
+    @Override
+    public void exitElse_stmt(Python3Parser.Else_stmtContext ctx){
+
+    }
+
 
     public String cutLastOccurence(String input, String needle, String replacement) {
         int pivot = input.lastIndexOf(needle);

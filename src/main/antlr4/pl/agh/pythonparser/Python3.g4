@@ -385,13 +385,24 @@ compound_stmt
  | funcdef 
  | classdef 
  | decorated
+ |elif_stmt
+ |else_stmt
  ;
 
 /// if_stmt: 'if' test ':' suite ('elif' test ':' suite)* ['else' ':' suite]
 if_stmt
- : IF test ':' suite ( ELIF test ':' suite )* ( ELSE ':' suite )?
+// : IF test ':' suite ( ELIF test ':' suite )* ( ELSE ':' suite )?
+ //;
+ :IF test ':' suite elif_stmt
  ;
 
+elif_stmt
+ : ELIF (test ':' suite)* else_stmt
+ ;
+
+ else_stmt
+ :ELSE (':' suite)?
+ ;
 /// while_stmt: 'while' test ':' suite ['else' ':' suite]
 while_stmt
  : WHILE test ':' suite ( ELSE ':' suite )?
