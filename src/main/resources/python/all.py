@@ -5,7 +5,7 @@ class MyClass:
     b = "sratata"
 
     def functionnnn(self):
-        print('Hello')
+        return "szesc"
 
 # Output: 10
 print(MyClass.a)
@@ -44,18 +44,17 @@ for fruit in range(len(fruits)):
 
 var = 20 - 10
 
+def do_global(a, x, y):
+    global spam
+    b = 0
+    b = a + a
+    spam = "global spam"
+    return b + a
 
 def scope_test():
-    def do_global(a, x, y):
-        global spam
-        b = 0
-        b = a + a
-        spam = "global spam"
-        return b + a
-
     spam = "test spam"
     do_global(10, "asa", 10.994)
-    print("After global assignment:", spam)
+    print("After global assignmnt:", spam)
 
 scope_test()
 print("In global scope:", spam)

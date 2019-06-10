@@ -1,13 +1,12 @@
 for num in [1,2,3]:
     print ('Current number :', num)
 
-fruits = ["raz","dwa","trzy"]
 
-for fruit in fruits:
-    print ('Current fruit :', fruit)
+for fruit in 'fruits':
+    print ('Current fruit :', fruit, ' asas', fruit)
 
-for fruit in range(len(fruits)):
-    print ('Current fruit :', fruit)
+for letter in ["one", "two", "three"]:
+    print ('Current fruit :', letter, ' asas', letter)
 
-var = 20
-if ( var == 100 ) : print("Value of expression is 100")
+var = 20 - 10
+if ( var == 10 ) : print("Value of expression is 100")

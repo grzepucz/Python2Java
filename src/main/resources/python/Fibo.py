@@ -6,3 +6,4 @@ def rec_fib(n):
 
 for i in range(40):
     print(i, rec_fib(i))
+

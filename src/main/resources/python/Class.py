@@ -1,6 +1,7 @@
 def scope_test():
     def do_global(a, x, y):
         global spam
+        b = 0
         b = a + a
         spam = "global spam"
         return b + a

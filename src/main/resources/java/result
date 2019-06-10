@@ -1,17 +1,33 @@
-for (int num in [1,2,3]) {
-	System.out.println('Current number :',num);
-	
-}
-["raz","dwa","trzy"];
-for (int fruit in ) {
-	System.out.println('Current fruit :',fruit);
-	
-}
-for (int fruit in range(len(fruits)len(fruits))) {
-	System.out.println('Current fruit :',fruit);
-	
-}
-;
- == 
-	System.out.println("Value of expression is 100");
+public class Main {
+	public static class Source {
+		static void execute() {
+			double[] data = {1,2,3};
 
+			for (Double num : data) {
+				System.out.println("Current number :" + num);
+				
+			
+			}
+			for (char fruit : "fruits".toCharArray()) {
+				System.out.println("Current fruit :" + fruit + " asas" + fruit);
+				
+			
+			}
+			String[] data = {"one","two","three"};
+			for (String letter : data) {
+				System.out.println("Current fruit :" + letter + " asas" + letter);
+				
+			
+			}
+			double var = 20 - 10 ;
+			var==10
+				System.out.println("Value of expression is 100");
+			
+			
+		}
+	}
+	
+	public static void main(String[] args) {
+		Source.execute();
+	}
+}

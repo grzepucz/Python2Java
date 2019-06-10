@@ -1,21 +1,21 @@
 class MyClass:
-  "This is my second class"
+  """This is the module docstring."""
   a = 10
+  b = "baba"
+
   def functionnnn(self):
+    for num in [1,2,3]:
+      print ('Current number :', num)
     print('Hello')
-
-# Output: 10
-print(MyClass.a)
-
-# Output: <function MyClass.func at 0x0000000003079BF8>
-print(MyClass.func)
 
 # Output: 'This is my second class'
 print(MyClass.__doc__)
 
-a = 10
+class SecondClass:
+  """This is the 2nd module docstring."""
+  x = 1
+  napis = "naafawfm"
 
-if a==10:
-  print("matchObj.group()")
-else:
-  print("No match!!")
+  def printuj(self):
+    for fruit in 'fruits':
+      print ('Current fruit :', fruit, ' asas', fruit)
