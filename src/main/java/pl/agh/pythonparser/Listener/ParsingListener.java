@@ -143,11 +143,9 @@ public class ParsingListener extends Python3BaseListener {
                             getFunctionType(
                                     getExtendedChild(ctx, Python3Parser.Return_stmtContext.class),
                                     this.variables
-                            )
-                            +
-                            " function");
+            ));
         }  else {
-            this.content=cutLastOccurence(this.content,"public function","public void function");
+            this.content=cutLastOccurence(this.content,"public function","public void");
         }
     }
 
