@@ -7,7 +7,6 @@ import static pl.agh.pythonparser.Translator.Service.Translator.translate;
 
 public class Main {
 
-
     public static void main(String[] args) {
 
         String source = "src/main/resources/python/Loops.py";
