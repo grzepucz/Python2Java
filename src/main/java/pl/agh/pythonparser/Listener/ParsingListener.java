@@ -35,6 +35,10 @@ public class ParsingListener extends Python3BaseListener {
         this.depth = 1;
     }
 
+    @Override
+    public void enterSingle_input(Python3Parser.Single_inputContext ctx) {
+
+    }
 
     @Override
     public void exitSingle_input(Python3Parser.Single_inputContext ctx) {
@@ -75,16 +79,6 @@ public class ParsingListener extends Python3BaseListener {
         } else {
             System.out.println("Cannot save...");
         }
-    }
-
-    @Override
-    public void enterEval_input(Python3Parser.Eval_inputContext ctx) {
-
-    }
-
-    @Override
-    public void exitEval_input(Python3Parser.Eval_inputContext ctx) {
-
     }
 
     @Override
@@ -218,6 +212,11 @@ public class ParsingListener extends Python3BaseListener {
         makeIndication();
     }
 
+    /**
+     * Python ma wbudowaną funkcję wyświetlającą informacje zaczynające się """ info """
+     * oraz funckcję, która te informacje wywietla.
+     * @param ctx
+     */
     @Override
     public void enterSimple_stmt(Python3Parser.Simple_stmtContext ctx) {
         if (ctx.getChild(0).getText().matches("(^\"{3}.*)|(^\'{3}.*)")) {
@@ -298,26 +297,6 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void exitAugassign(Python3Parser.AugassignContext ctx) {
-
-    }
-
-    @Override
-    public void enterDel_stmt(Python3Parser.Del_stmtContext ctx) {
-
-    }
-
-    @Override
-    public void exitDel_stmt(Python3Parser.Del_stmtContext ctx) {
-
-    }
-
-    @Override
-    public void enterPass_stmt(Python3Parser.Pass_stmtContext ctx) {
-
-    }
-
-    @Override
-    public void exitPass_stmt(Python3Parser.Pass_stmtContext ctx) {
 
     }
 
@@ -463,26 +442,6 @@ public class ParsingListener extends Python3BaseListener {
     }
 
     @Override
-    public void enterGlobal_stmt(Python3Parser.Global_stmtContext ctx) {
-
-    }
-
-    @Override
-    public void exitGlobal_stmt(Python3Parser.Global_stmtContext ctx) {
-
-    }
-
-    @Override
-    public void enterNonlocal_stmt(Python3Parser.Nonlocal_stmtContext ctx) {
-
-    }
-
-    @Override
-    public void exitNonlocal_stmt(Python3Parser.Nonlocal_stmtContext ctx) {
-
-    }
-
-    @Override
     public void enterFinally_suite(Python3Parser.Finally_suiteContext ctx) {
         this.content = this.content.concat(Dictionary.SPACE + "finally" + Dictionary.SPACE + Dictionary.OPEN_BRACE);
         makeIndication();
@@ -496,22 +455,24 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterIf_stmt(Python3Parser.If_stmtContext ctx) {
-
+        this.content = this.content.concat(ctx.IF().getText() + Dictionary.SPACE + Dictionary.OPEN_BRACKET);
+        //System.out.println(ctx.getParent().getRuleIndex());
     }
 
     @Override
     public void exitIf_stmt(Python3Parser.If_stmtContext ctx) {
-
+        this.content = this.content.concat(Dictionary.CLOSE_BRACE);
+        //System.out.println(ctx.getParent().getRuleIndex());
     }
 
     @Override
     public void enterWhile_stmt(Python3Parser.While_stmtContext ctx) {
-
+        this.content = this.content.concat(ctx.WHILE().getText() + Dictionary.SPACE + Dictionary.OPEN_BRACKET);
     }
 
     @Override
     public void exitWhile_stmt(Python3Parser.While_stmtContext ctx) {
-
+        this.content = this.content.concat(Dictionary.CLOSE_BRACE);
     }
 
     @Override
@@ -537,26 +498,6 @@ public class ParsingListener extends Python3BaseListener {
         this.content = this.content.concat(Dictionary.CLOSE_BRACE);
         this.depth--;
         makeIndication();
-    }
-
-    @Override
-    public void enterWith_stmt(Python3Parser.With_stmtContext ctx) {
-
-    }
-
-    @Override
-    public void exitWith_stmt(Python3Parser.With_stmtContext ctx) {
-
-    }
-
-    @Override
-    public void enterWith_item(Python3Parser.With_itemContext ctx) {
-
-    }
-
-    @Override
-    public void exitWith_item(Python3Parser.With_itemContext ctx) {
-
     }
 
     @Override
@@ -634,42 +575,12 @@ public class ParsingListener extends Python3BaseListener {
     }
 
     @Override
-    public void enterLambdef(Python3Parser.LambdefContext ctx) {
-
-    }
-
-    @Override
-    public void exitLambdef(Python3Parser.LambdefContext ctx) {
-
-    }
-
-    @Override
-    public void enterLambdef_nocond(Python3Parser.Lambdef_nocondContext ctx) {
-
-    }
-
-    @Override
-    public void exitLambdef_nocond(Python3Parser.Lambdef_nocondContext ctx) {
-
-    }
-
-    @Override
     public void enterOr_test(Python3Parser.Or_testContext ctx) {
 
     }
 
     @Override
     public void exitOr_test(Python3Parser.Or_testContext ctx) {
-
-    }
-
-    @Override
-    public void enterAnd_test(Python3Parser.And_testContext ctx) {
-
-    }
-
-    @Override
-    public void exitAnd_test(Python3Parser.And_testContext ctx) {
 
     }
 
@@ -874,36 +785,6 @@ public class ParsingListener extends Python3BaseListener {
     }
 
     @Override
-    public void enterSubscriptlist(Python3Parser.SubscriptlistContext ctx) {
-
-    }
-
-    @Override
-    public void exitSubscriptlist(Python3Parser.SubscriptlistContext ctx) {
-
-    }
-
-    @Override
-    public void enterSubscript(Python3Parser.SubscriptContext ctx) {
-
-    }
-
-    @Override
-    public void exitSubscript(Python3Parser.SubscriptContext ctx) {
-
-    }
-
-    @Override
-    public void enterSliceop(Python3Parser.SliceopContext ctx) {
-
-    }
-
-    @Override
-    public void exitSliceop(Python3Parser.SliceopContext ctx) {
-
-    }
-
-    @Override
     public void enterExprlist(Python3Parser.ExprlistContext ctx) {
         ParseTree testlist = ctx.getParent().getChild(3);
         if ( testlist != null) {
@@ -954,16 +835,6 @@ public class ParsingListener extends Python3BaseListener {
                     + Dictionary.OPEN_BRACE
             );
         }
-    }
-
-    @Override
-    public void enterDictorsetmaker(Python3Parser.DictorsetmakerContext ctx) {
-
-    }
-
-    @Override
-    public void exitDictorsetmaker(Python3Parser.DictorsetmakerContext ctx) {
-
     }
 
     @Override
@@ -1161,6 +1032,38 @@ public class ParsingListener extends Python3BaseListener {
 
     }
 
+
+    @Override
+    public void enterElif_stmt(Python3Parser.Elif_stmtContext ctx){
+        this.content = this.content.concat("else if" + Dictionary.SPACE + Dictionary.OPEN_BRACKET);
+    }
+
+    @Override
+    public void exitElif_stmt(Python3Parser.Elif_stmtContext ctx){
+        this.content = this.content.concat(Dictionary.CLOSE_BRACE);
+    }
+
+    @Override
+    public void enterElse_stmt(Python3Parser.Else_stmtContext ctx){
+        this.content = this.content.concat(ctx.ELSE().getText() + Dictionary.OPEN_BRACE);
+    }
+
+    @Override
+    public void exitElse_stmt(Python3Parser.Else_stmtContext ctx){
+        this.content = this.content.concat(Dictionary.CLOSE_BRACE);
+    }
+
+    @Override
+    public void enterAnd_comp(Python3Parser.And_compContext ctx) {
+        this.content = this.content.concat(" and ");
+    }
+
+    @Override
+    public void exitAnd_comp(Python3Parser.And_compContext ctx) {
+        System.out.println("and");
+    }
+
+
     /**
      * Function to make new lines and tabulation
      */
@@ -1208,27 +1111,6 @@ public class ParsingListener extends Python3BaseListener {
         makeIndication();
     }
 
-    @Override
-    public void enterElif_stmt(Python3Parser.Elif_stmtContext ctx){
-        this.content = this.content.concat("else if" + Dictionary.SPACE);
-    }
-
-    @Override
-    public void exitElif_stmt(Python3Parser.Elif_stmtContext ctx){
-
-    }
-
-    @Override
-    public void enterElse_stmt(Python3Parser.Else_stmtContext ctx){
-        this.content = this.content.concat(ctx.ELSE().getText());
-    }
-
-    @Override
-    public void exitElse_stmt(Python3Parser.Else_stmtContext ctx){
-
-    }
-
-
     public String cutLastOccurence(String input, String needle, String replacement) {
         int pivot = input.lastIndexOf(needle);
         String firstPart = input.substring(0, pivot);
@@ -1275,4 +1157,5 @@ public class ParsingListener extends Python3BaseListener {
             return content;
         }
     }
+
 }
