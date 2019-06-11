@@ -9,7 +9,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        String source = "src/main/resources/python/try.py";
+        String source = "src/main/resources/python/Loops.py";
         String resultFile = "result";
         String sourceTree = "result_function_tree.txt";
 
@@ -31,7 +31,7 @@ public class Main {
 
         FileAccessor fileAccessor = new FileAccessor();
         String content = fileAccessor.read(source);
-        //fileAccessor.save(content.replace('d', 'c'), "result.txt");
+        fileAccessor.save(content.replace('d', 'c'), "result.txt");
         fileAccessor.save(new Builder.Tree(content).toStringASCII(), sourceTree);
     }
 }

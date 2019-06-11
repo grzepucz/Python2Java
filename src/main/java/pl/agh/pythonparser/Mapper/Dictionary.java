@@ -20,10 +20,8 @@ public class Dictionary {
     public static final String RETURN = "return ";
     public static final String MAIN_CLASS_INTRO = "public class Main {";
     public static final String MAIN_FUNCTION_INTRO = "public static void main(String[] args) {";
-    public static final String SOURCE_CLASS_INTRO = "public class Source {";
     public static final String AND = " && ";
     public static final String OR = " || ";
-    public static final String MAIN_FUNCTION_INTRO = "public static void main(String[] args) {\n";
     public static final String MAIN_FUNCTION_BODY = "\t\tSource.execute();\n";
     public static final String MAIN_FUNCTION_OUTRO = "\t}\n";
     public static final String SOURCE_CLASS_INTRO = "public static class Source {\n\t\tstatic void execute() {";

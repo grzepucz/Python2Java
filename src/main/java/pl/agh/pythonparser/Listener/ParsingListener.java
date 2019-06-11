@@ -527,9 +527,13 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterSuite(Python3Parser.SuiteContext ctx) {
+        if (ctx.getParent().getRuleIndex() == 35) {
+            this.content = this.content.concat(" ) { ");
+        }
         this.depth++;
 
         makeIndication();
+
     }
 
     @Override
@@ -541,7 +545,9 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterTest(Python3Parser.TestContext ctx) {
-
+        if (ctx.getParent().getRuleIndex() == 35){
+            this.content = this.content.concat(" ( ");
+        }
     }
 
     @Override
@@ -568,7 +574,7 @@ public class ParsingListener extends Python3BaseListener {
 
     }
 
-    @Override
+    /*@Override
     public void enterAnd_test(Python3Parser.And_testContext ctx) {
 
         //this.content = this.content.concat("and");
@@ -577,7 +583,7 @@ public class ParsingListener extends Python3BaseListener {
     @Override
     public void exitAnd_test(Python3Parser.And_testContext ctx) {
        // System.out.println(ctx.getChild(0).getText());
-    }
+    }*/
 
     @Override
     public void enterNot_test(Python3Parser.Not_testContext ctx) {
@@ -607,11 +613,12 @@ public class ParsingListener extends Python3BaseListener {
 //                + Dictionary.COMPARE
 //                + Dictionary.SPACE
 //        );
+        //this.content = this.content.concat("(");
     }
 
     @Override
     public void exitComp_op(Python3Parser.Comp_opContext ctx) {
-        //this.content = this.content.concat(Dictionary.CLOSE_BRACKET + Dictionary.OPEN_BRACE);
+        this.content = this.content.concat( Dictionary.CLOSE_BRACKET);
     }
 
     @Override
@@ -738,7 +745,6 @@ public class ParsingListener extends Python3BaseListener {
 //                    Mapper.getSpecial(ctx.getText())
 //            );
         }
-
         // System.out.println("atom: " + ctx.getText());
     }
 
@@ -811,7 +817,7 @@ public class ParsingListener extends Python3BaseListener {
             String text = Mapper.isSpecial(ctx.getText()) ? "" : ctx.getText();
             this.content = this.content.concat(
                     Dictionary.SPACE
-                    + Dictionary.COLON
+                    + Dictionary.SEMICOLON
                     + Dictionary.SPACE
                     + text
             );
@@ -1142,13 +1148,33 @@ public class ParsingListener extends Python3BaseListener {
     }
 
     @Override
-    public void enterAnd_comp(Python3Parser.And_compContext ctx) {
-        this.content = this.content.concat(" and ");
+    public void enterOperators(Python3Parser.OperatorsContext ctx) {
+
     }
 
     @Override
-    public void exitAnd_comp(Python3Parser.And_compContext ctx) {
-        System.out.println("and");
+    public void exitOperators(Python3Parser.OperatorsContext ctx) {
+        //System.out.println("and");
+    }
+
+    @Override
+    public void enterAnd_op(Python3Parser.And_opContext ctx) {
+        this.content = this.content.concat(" && " + " ( ");
+    }
+
+    @Override
+    public void exitAnd_op(Python3Parser.And_opContext ctx) {
+        //System.out.println("and");
+    }
+
+    @Override
+    public void enterOr_op(Python3Parser.Or_opContext ctx) {
+        this.content = this.content.concat(" || ");
+    }
+
+    @Override
+    public void exitOr_op(Python3Parser.Or_opContext ctx) {
+        //System.out.println("and");
     }
 
 }

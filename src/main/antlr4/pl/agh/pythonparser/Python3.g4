@@ -106,13 +106,17 @@ tokens { INDENT, DEDENT }
  */
 
 
-and_comp
-: atom ( AND atom)*
-| comparison ( AND comparison )*
-| comp_op ( AND comp_op )*
-| comp_if ( AND comp_if )*
-// | test ( AND test )*
-// | test
+operators
+: and_op
+| or_op
+;
+
+and_op
+:AND
+;
+
+or_op
+:OR
 ;
 
 single_input
@@ -295,11 +299,14 @@ compound_stmt
 if_stmt
 // : IF test ':' suite ( ELIF test ':' suite )* ( ELSE ':' suite )?
  //;
- :IF and_comp ':' suite // elif_stmt
+ /*:IF test ':' suite // elif_stmt
+ ;*/
+
+ :IF test (operators test)* ':' suite // elif_stmt
  ;
 
 elif_stmt
- : ELIF (test ':' suite)* // else_stmt
+ : ELIF (test (operators test)* ':' suite)* // else_stmt
  ;
 
  else_stmt
