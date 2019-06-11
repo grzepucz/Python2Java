@@ -31,7 +31,7 @@ public class Main {
 
         FileAccessor fileAccessor = new FileAccessor();
         String content = fileAccessor.read(source);
-        //fileAccessor.save(content.replace('d', 'c'), "result.txt");
+        fileAccessor.save(content.replace('d', 'c'), "result.txt");
         fileAccessor.save(new Builder.Tree(content).toStringASCII(), sourceTree);
     }
 }

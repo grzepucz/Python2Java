@@ -106,13 +106,17 @@ tokens { INDENT, DEDENT }
  */
 
 
-and_comp
-: atom ( AND atom)*
-| comparison ( AND comparison )*
-| comp_op ( AND comp_op )*
-| comp_if ( AND comp_if )*
-// | test ( AND test )*
-// | test
+operators
+: and_op
+| or_op
+;
+
+and_op
+:AND
+;
+
+or_op
+:OR
 ;
 
 single_input
@@ -171,50 +175,40 @@ varargslist
  | '**' vfpdef
  ;
 
-/// vfpdef: NAME
 vfpdef
  : NAME
  ;
 
-/// stmt: simple_stmt | compound_stmt
 stmt
  : simple_stmt 
  | compound_stmt
  ;
 
-/// simple_stmt: small_stmt (';' small_stmt)* [';'] NEWLINE
 simple_stmt
  : small_stmt ( ';' small_stmt )* ';'? NEWLINE
  ;
 
-/// small_stmt: (expr_stmt | del_stmt | pass_stmt | flow_stmt |
-///              import_stmt | global_stmt | nonlocal_stmt | assert_stmt)
 small_stmt
  : expr_stmt
  | flow_stmt
  | import_stmt
  ;
 
-/// expr_stmt: testlist_star_expr (augassign (yield_expr|testlist) |
-///                      ('=' (yield_expr|testlist_star_expr))*)
 expr_stmt
  : testlist_star_expr ( augassign ( yield_expr | testlist) 
                       | ( '=' ( yield_expr| testlist_star_expr ) )*
                       )
  ;           
 
-/// testlist_star_expr: (test|star_expr) (',' (test|star_expr))* [',']
 testlist_star_expr
  : ( test | star_expr ) ( ',' ( test |  star_expr ) )* ','?
  ;
 
-/// augassign: ('+=' | '-=' | '*=' | '/=' | '%=' | '&=' | '|=' | '^=' |
-///             '<<=' | '>>=' | '**=' | '//=')
 augassign
  : '+=' 
  | '-=' 
  | '*=' 
- | '@=' // PEP 465
+ | '@='
  | '/=' 
  | '%=' 
  | '&=' 
@@ -234,45 +228,35 @@ flow_stmt
  | yield_stmt
  ;
 
-/// break_stmt: 'break'
 break_stmt
  : BREAK
  ;
 
-/// continue_stmt: 'continue'
 continue_stmt
  : CONTINUE
  ;
 
-/// return_stmt: 'return' [testlist]
 return_stmt
  : RETURN testlist?
  ;
 
-/// yield_stmt: yield_expr
 yield_stmt
  : yield_expr
  ;
 
-/// raise_stmt: 'raise' [test ['from' test]]
 raise_stmt
  : RAISE ( test ( FROM test )? )?
  ;
 
-/// import_stmt: import_name | import_from
 import_stmt
  : import_name 
  | import_from
  ;
 
-/// import_name: 'import' dotted_as_names
 import_name
  : IMPORT dotted_as_names
  ;
 
-/// # note below: the ('.' | '...') is necessary because '...' is tokenized as ELLIPSIS
-/// import_from: ('from' (('.' | '...')* dotted_name | ('.' | '...')+)
-///               'import' ('*' | '(' import_as_names ')' | import_as_names))
 import_from
  : FROM ( ( '.' | '...' )* dotted_name 
         | ('.' | '...')+ 
@@ -283,27 +267,22 @@ import_from
           )         
  ;
 
-/// import_as_name: NAME ['as' NAME]
 import_as_name
  : NAME ( AS NAME )?
  ;
 
-/// dotted_as_name: dotted_name ['as' NAME]
 dotted_as_name
  : dotted_name ( AS NAME )?
  ;
 
-/// import_as_names: import_as_name (',' import_as_name)* [',']
 import_as_names
  : import_as_name ( ',' import_as_name )* ','?
  ;
 
-/// dotted_as_names: dotted_as_name (',' dotted_as_name)*
 dotted_as_names
  : dotted_as_name ( ',' dotted_as_name )*
  ;
 
-/// dotted_name: NAME ('.' NAME)*
 dotted_name
  : NAME ( '.' NAME )*
  ;
@@ -320,59 +299,6 @@ compound_stmt
  | else_stmt
  ;
 
-/// if_stmt: 'if' test ':' suite ('elif' test ':' suite)* ['else' ':' suite]
-if_stmt
-// : IF test ':' suite ( ELIF test ':' suite )* ( ELSE ':' suite )?
- //;
- :IF test ':' suite elif_stmt
- ;
-
-elif_stmt
- : ELIF (test ':' suite)* else_stmt
- ;
-
- else_stmt
- :ELSE (':' suite)?
- ;
-/// while_stmt: 'while' test ':' suite ['else' ':' suite]
-while_stmt
- : WHILE test ':' suite ( ELSE ':' suite )?
- ;
-
-/// for_stmt: 'for' exprlist 'in' testlist ':' suite ['else' ':' suite]
-for_stmt
- : FOR exprlist IN testlist ':' suite ( ELSE ':' suite )?
- ;
-
-try_stmt
- : TRY ':' try_suite ( ( except_clause ':' except_clause_suite )+
-                   ( ELSE ':' try_else_suite )?
-                   ( FINALLY ':' finally_suite )?
-                 | FINALLY ':' finally_suite
-                 )
- ;
-
-/// with_stmt: 'with' with_item (',' with_item)*  ':' suite
-with_stmt
- : WITH with_item ( ',' with_item )* ':' suite
- ;
-
-/// with_item: test ['as' expr]
-with_item
- : test ( AS expr )?
- ;
-
-/// # NB compile.c makes sure that the default except clause is last
-/// except_clause: 'except' [test ['as' NAME]]
-except_clause
- : EXCEPT ( test ( AS NAME )? )?
- ;
-
-/// suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT
-suite
- : simple_stmt 
- | NEWLINE INDENT stmt+ DEDENT
- ;
 
 except_clause_suite
  : suite
@@ -390,12 +316,56 @@ try_else_suite
  : suite
  ;
 
-/// test: or_test ['if' or_test 'else' test] | lambdef
+
+
+/// if_stmt: 'if' test ':' suite ('elif' test ':' suite)* ['else' ':' suite]
+if_stmt
+// : IF test ':' suite ( ELIF test ':' suite )* ( ELSE ':' suite )?
+ //;
+ /*:IF test ':' suite // elif_stmt
+ ;*/
+
+ :IF test (operators test)* ':' suite // elif_stmt
+ ;
+
+elif_stmt
+ : ELIF (test (operators test)* ':' suite)* // else_stmt
+ ;
+
+ else_stmt
+ :ELSE (':' suite)?
+ ;
+/// while_stmt: 'while' test ':' suite ['else' ':' suite]
+while_stmt
+ : WHILE test ':' suite ( ELSE ':' suite )?
+ ;
+
+for_stmt
+ : FOR exprlist IN testlist ':' suite ( ELSE ':' suite )?
+ ;
+
+try_stmt
+ : TRY ':' try_suite ( ( except_clause ':' except_clause_suite )+
+                   ( ELSE ':' try_else_suite )?
+                   ( FINALLY ':' finally_suite )?
+                 | FINALLY ':' finally_suite
+                 )
+ ;
+/// # NB compile.c makes sure that the default except clause is last
+/// except_clause: 'except' [test ['as' NAME]]
+except_clause
+ : EXCEPT ( test ( AS NAME )? )?
+ ;
+
+suite
+ : simple_stmt 
+ | NEWLINE INDENT stmt+ DEDENT
+ ;
+
 test
  : or_test ( IF or_test ELSE test )?
  ;
 
-/// test_nocond: or_test | lambdef_nocond
 test_nocond
  : or_test
  ;
@@ -411,20 +381,15 @@ test_nocond
  : not_test ( AND not_test )*
  ;*/
 
-/// not_test: 'not' not_test | comparison
 not_test
  : NOT not_test 
  | comparison
  ;
 
-/// comparison: star_expr (comp_op star_expr)*
 comparison
  : star_expr ( comp_op star_expr )*
  ;
 
-/// # <> isn't actually a valid comparison operator in Python. It's here for the
-/// # sake of a __future__ import described in PEP 401
-/// comp_op: '<'|'>'|'=='|'>='|'<='|'<>'|'!='|'in'|'not' 'in'|'is'|'is' 'not'
 comp_op
  : '<'
  | '>'
@@ -439,51 +404,43 @@ comp_op
  | IS NOT
  ;
 
-/// star_expr: ['*'] expr
 star_expr
  : '*'? expr
  ;
 
-/// expr: xor_expr ('|' xor_expr)*
 expr
  : xor_expr ( '|' xor_expr )*
  ;
 
-/// xor_expr: and_expr ('^' and_expr)*
 xor_expr
  : and_expr ( '^' and_expr )*
  ;
 
-/// and_expr: shift_expr ('&' shift_expr)*
 and_expr
  : shift_expr ( '&' shift_expr )*
  ;
 
-/// shift_expr: arith_expr (('<<'|'>>') arith_expr)*
 shift_expr
  : arith_expr ( '<<' arith_expr 
               | '>>' arith_expr 
               )*
  ;
 
-/// arith_expr: term (('+'|'-') term)*
 arith_expr
  : term ( '+' term
         | '-' term 
         )*
  ;
 
-/// term: factor (('*'|'/'|'%'|'//') factor)*
 term
  : factor ( '*' factor
           | '/' factor
           | '%' factor 
           | '//' factor 
-          | '@' factor // PEP 465
+          | '@' factor
           )*
  ;
 
-/// factor: ('+'|'-'|'~') factor | power
 factor
  : '+' factor 
  | '-' factor 
@@ -491,15 +448,10 @@ factor
  | power
  ;
 
-/// power: atom trailer* ['**' factor]
 power
  : atom trailer* ( '**' factor )?
  ;
 
-/// atom: ('(' [yield_expr|testlist_comp] ')' |
-///        '[' [testlist_comp] ']' |
-///        '{' [dictorsetmaker] '}' |
-///        NAME | NUMBER | STRING+ | '...' | 'None' | 'True' | 'False')
 atom
  : '(' ( yield_expr | testlist_comp )? ')' 
  | '[' testlist_comp? ']'
@@ -512,14 +464,12 @@ atom
  | FALSE
  ;
 
-/// testlist_comp: test ( comp_for | (',' test)* [','] )
 testlist_comp
  : test ( comp_for 
         | ( ',' test )* ','? 
         )
  ;
 
-/// trailer: '(' [arglist] ')' | '[' subscriptlist ']' | '.' NAME
 trailer
  : '(' arglist? ')'
  | '.' NAME
@@ -552,28 +502,23 @@ argument
  | test '=' test
  ;
 
-/// comp_iter: comp_for | comp_if
 comp_iter
  : comp_for 
  | comp_if
  ;
 
-/// comp_for: 'for' exprlist 'in' or_test [comp_iter]
 comp_for
  : FOR exprlist IN or_test comp_iter?
  ;
 
-/// comp_if: 'if' test_nocond [comp_iter]
 comp_if
  : IF test_nocond comp_iter?
  ;
 
-/// yield_expr: 'yield' [testlist]
 yield_expr
  : YIELD yield_arg?
  ;
 
-/// yield_arg: 'from' test | testlist
 yield_arg
  : FROM test 
  | testlist
@@ -590,7 +535,6 @@ number
  | IMAG_NUMBER
  ;
 
-/// integer        ::=  decimalinteger | octinteger | hexinteger | bininteger
 integer
  : DECIMAL_INTEGER
  | OCT_INTEGER
@@ -668,7 +612,6 @@ NEWLINE
    }
  ;
 
-/// identifier   ::=  id_start id_continue*
 NAME
  : ID_START ID_CONTINUE*
  ;

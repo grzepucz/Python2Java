@@ -20,9 +20,9 @@ public class Main {
 			
 			}
 			double var = 20 - 10 ;
-			var==10
+			if (var==10
 				System.out.println("Value of expression is 100");
-			
+			}
 			
 		}
 	}

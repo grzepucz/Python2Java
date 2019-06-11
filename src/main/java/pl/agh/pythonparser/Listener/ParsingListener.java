@@ -542,6 +542,9 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterSuite(Python3Parser.SuiteContext ctx) {
+        if (ctx.getParent().getRuleIndex() == 35) {
+            this.content = this.content.concat(" ) { ");
+        }
         this.depth++;
 
         makeIndication();
@@ -556,7 +559,9 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterTest(Python3Parser.TestContext ctx) {
-
+        if (ctx.getParent().getRuleIndex() == 35){
+            this.content = this.content.concat(" ( ");
+        }
     }
 
     @Override
@@ -1032,38 +1037,6 @@ public class ParsingListener extends Python3BaseListener {
 
     }
 
-
-    @Override
-    public void enterElif_stmt(Python3Parser.Elif_stmtContext ctx){
-        this.content = this.content.concat("else if" + Dictionary.SPACE + Dictionary.OPEN_BRACKET);
-    }
-
-    @Override
-    public void exitElif_stmt(Python3Parser.Elif_stmtContext ctx){
-        this.content = this.content.concat(Dictionary.CLOSE_BRACE);
-    }
-
-    @Override
-    public void enterElse_stmt(Python3Parser.Else_stmtContext ctx){
-        this.content = this.content.concat(ctx.ELSE().getText() + Dictionary.OPEN_BRACE);
-    }
-
-    @Override
-    public void exitElse_stmt(Python3Parser.Else_stmtContext ctx){
-        this.content = this.content.concat(Dictionary.CLOSE_BRACE);
-    }
-
-    @Override
-    public void enterAnd_comp(Python3Parser.And_compContext ctx) {
-        this.content = this.content.concat(" and ");
-    }
-
-    @Override
-    public void exitAnd_comp(Python3Parser.And_compContext ctx) {
-        System.out.println("and");
-    }
-
-
     /**
      * Function to make new lines and tabulation
      */
@@ -1156,6 +1129,56 @@ public class ParsingListener extends Python3BaseListener {
         } else {
             return content;
         }
+    }
+
+    @Override
+    public void enterElif_stmt(Python3Parser.Elif_stmtContext ctx){
+        this.content = this.content.concat("else if" + Dictionary.SPACE + Dictionary.OPEN_BRACKET);
+    }
+
+    @Override
+    public void exitElif_stmt(Python3Parser.Elif_stmtContext ctx){
+        this.content = this.content.concat(Dictionary.CLOSE_BRACE);
+    }
+
+    @Override
+    public void enterElse_stmt(Python3Parser.Else_stmtContext ctx){
+        this.content = this.content.concat(ctx.ELSE().getText() + Dictionary.OPEN_BRACE);
+    }
+
+    @Override
+    public void exitElse_stmt(Python3Parser.Else_stmtContext ctx){
+        this.content = this.content.concat(Dictionary.CLOSE_BRACE);
+    }
+
+    @Override
+    public void enterOperators(Python3Parser.OperatorsContext ctx) {
+
+    }
+
+    @Override
+    public void exitOperators(Python3Parser.OperatorsContext ctx) {
+        //System.out.println("and");
+    }
+
+    @Override
+    public void enterAnd_op(Python3Parser.And_opContext ctx) {
+        this.content = this.content.concat(" && " + " ( ");
+    }
+
+    @Override
+    public void exitAnd_op(Python3Parser.And_opContext ctx) {
+        //System.out.println("and");
+    }
+
+    @Override
+    public void enterOr_op(Python3Parser.Or_opContext ctx) {
+        this.content = this.content.concat(" || ");
+    }
+
+    @Override
+    public void exitOr_op(Python3Parser.Or_opContext ctx) {
+        //System.out.println("and");
     }
 
 }
