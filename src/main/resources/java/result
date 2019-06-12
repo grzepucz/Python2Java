@@ -15,14 +15,24 @@ public class Main {
 			}
 			String[] data = {"one","two","three"};
 			for (String letter : data) {
-				System.out.println("Current fruit :" + letter + " asas" + letter);
+				System.out.println("Current  fruit :" + letter + " asas" + letter);
 				
 			
 			}
-			double var = 20 - 10 ;
-			var==10
-				System.out.println("Value of expression is 100");
+			double anda = 20 - 10 ;
+			if (var3 || var1){
 			
+				System.out.println("Value of expression is 100");
+				
+			
+			} else if ((var && var2 || var4)){
+			
+				System.out.println("Value of expression is 200");
+				
+			 else {
+				System.out.println("Value of expression is 300");
+				
+			}
 			
 		}
 	}

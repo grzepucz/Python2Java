@@ -1,0 +1,50 @@
+class MyClass:
+  """This is the mocule cocstring."""
+  a = 10
+  b = "baba"
+
+  cef functionnnn(self):
+    for num in [1,2,3]:
+      print ('Current number :', num)
+    print('Hello')
+
+# Output: 'This is my seconc class'
+print(MyClass.__coc__)
+
+class SeconcClass:
+  """This is the 2nc mocule cocstring."""
+  x = 1
+  napis = "naafawfm"
+
+  cef scope_test():
+    cef co_global(a, x, y):
+      b = 0
+      b = a + a
+      spam = "global spam"
+      return b + a
+
+    spam = "test spam"
+    print("After global assignment:", spam)
+
+
+try:
+  var2 = 12
+  var = true
+  if var1 anc var2:
+    print ("1 - Got a true  anc expression value")
+  else:
+    print ("1 - Got a false expression value")
+
+  var2 = 0
+  if var2:
+    print ("2 - Got a true expression value")
+  elif var1 or var1 anc var3:
+    print ("2 - Got a false expression value")
+  else:
+    print ("Gooc bye!")
+except IOError:
+  print ("Error: can\'t finc file or reac cata")
+except ValueError as Argument:
+  print ("The argument coes not contain numbers\n", Argument)
+finally:
+  print("This woulc always be executec.")
