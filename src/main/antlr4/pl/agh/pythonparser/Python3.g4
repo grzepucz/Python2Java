@@ -387,9 +387,29 @@ compound_stmt
  | decorated
  ;
 
+if_suite
+ : suite
+ ;
+
+elif_suite
+ : suite
+ ;
+
+else_suite
+ : suite
+ ;
+
+elif_test
+ : test
+ ;
+
+if_test
+ : test
+ ;
+
 /// if_stmt: 'if' test ':' suite ('elif' test ':' suite)* ['else' ':' suite]
 if_stmt
- : IF test ':' suite ( ELIF test ':' suite )* ( ELSE ':' suite )?
+ : IF if_test (operators if_test)* ':' if_suite ( ELIF elif_test ':' elif_suite )* ( ELSE ':' else_suite )?
  ;
 
 /// while_stmt: 'while' test ':' suite ['else' ':' suite]
@@ -511,6 +531,20 @@ comp_op
  | NOT IN
  | IS
  | IS NOT
+ ;
+
+
+operators
+ : and_op
+ | or_op
+ ;
+
+and_op
+ : AND
+ ;
+
+or_op
+ : OR
  ;
 
 /// star_expr: ['*'] expr

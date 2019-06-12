@@ -501,13 +501,123 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterIf_stmt(Python3Parser.If_stmtContext ctx) {
-
+        this.content = this.content.concat("if ");
     }
 
     @Override
     public void exitIf_stmt(Python3Parser.If_stmtContext ctx) {
 
     }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterIf_suite(Python3Parser.If_suiteContext ctx) {
+        this.content = this.content.concat(Dictionary.OPEN_BRACE);
+        makeIndication();
+    }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitIf_suite(Python3Parser.If_suiteContext ctx) {
+        makeIndication();
+        this.content = this.content.concat(Dictionary.CLOSE_BRACE);
+    }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterElif_suite(Python3Parser.Elif_suiteContext ctx) {
+        this.content = this.content.concat(Dictionary.OPEN_BRACE);
+        makeIndication();
+    }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitElif_suite(Python3Parser.Elif_suiteContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterElse_suite(Python3Parser.Else_suiteContext ctx) {
+        this.content = this.content.concat(" else ");
+        this.content = this.content.concat(Dictionary.OPEN_BRACE);
+    }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitElse_suite(Python3Parser.Else_suiteContext ctx) {
+        this.content = this.content.concat(Dictionary.CLOSE_BRACE);
+    }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterElif_test(Python3Parser.Elif_testContext ctx) {
+        this.content = this.content.concat(" else if ");
+        this.content = this.content.concat(Dictionary.OPEN_BRACKET);
+        this.content = this.content.concat(
+                ctx.getText().replace("and", " && ").replace("or", " || ")
+        );
+    }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitElif_test(Python3Parser.Elif_testContext ctx) {
+        this.content = this.content.concat(Dictionary.CLOSE_BRACKET);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterAnd_op(Python3Parser.And_opContext ctx) {
+        this.content = this.content.concat(" && ");
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterOr_op(Python3Parser.Or_opContext ctx) {
+        this.content = this.content.concat(" || ");
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterIf_test(Python3Parser.If_testContext ctx) {
+        this.content = this.content.concat(Dictionary.OPEN_BRACKET);
+        this.content = this.content.concat(
+                ctx.getText().replace("and", " && ").replace("or", " || ")
+        );
+    }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitIf_test(Python3Parser.If_testContext ctx) {
+        this.content = this.content.concat(Dictionary.CLOSE_BRACKET);
+    }
+
 
     @Override
     public void enterWhile_stmt(Python3Parser.While_stmtContext ctx) {
