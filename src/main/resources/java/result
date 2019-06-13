@@ -1,15 +1,28 @@
+import statistics/median;
+import statistics/mean;
+import statistics;
+
 public class Main {
 	public static class Source {
 		static void execute() {
+			
+			
 			double[] data = {1,2,3};
 
 			for (Double num : data) {
 				System.out.println("Current number :" + num);
+				break;
 				
 			
 			}
 			for (char fruit : "fruits".toCharArray()) {
 				System.out.println("Current fruit :" + fruit + " asas" + fruit);
+				if (var3 || var1){
+				
+					throw Exception("My error!");
+					
+				
+				}
 				
 			
 			}
@@ -19,17 +32,23 @@ public class Main {
 				
 			
 			}
+			double count = 0;
+			while (count<9) {
+				System.out.println("The count is:" + count);
+				count = count + 1 ;
+				
+			}
 			double anda = 20 - 10 ;
 			if (var3 || var1){
 			
 				System.out.println("Value of expression is 100");
 				
 			
-			} else if ((var && var2 || var4)){
+			} else if ((var2 || var4)){
 			
 				System.out.println("Value of expression is 200");
 				
-			 else {
+			} else {
 				System.out.println("Value of expression is 300");
 				
 			}

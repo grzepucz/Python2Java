@@ -17,6 +17,7 @@ public class Dictionary {
     public static final String CLOSE_SQ_BRACKET = "]";
     public static final String COMPARE = "==";
     public static final String APO = "'";
+    public static final String SLASH = "/";
     public static final String CLASS_DEF = "public class ";
     public static final String RETURN = "return ";
     public static final String MAIN_CLASS_INTRO = "public class Main {";

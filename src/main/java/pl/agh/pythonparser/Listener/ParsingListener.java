@@ -78,46 +78,6 @@ public class ParsingListener extends Python3BaseListener {
     }
 
     @Override
-    public void enterEval_input(Python3Parser.Eval_inputContext ctx) {
-
-    }
-
-    @Override
-    public void exitEval_input(Python3Parser.Eval_inputContext ctx) {
-
-    }
-
-    @Override
-    public void enterDecorator(Python3Parser.DecoratorContext ctx) {
-
-    }
-
-    @Override
-    public void exitDecorator(Python3Parser.DecoratorContext ctx) {
-
-    }
-
-    @Override
-    public void enterDecorators(Python3Parser.DecoratorsContext ctx) {
-        System.out.println(ctx.getText());
-    }
-
-    @Override
-    public void exitDecorators(Python3Parser.DecoratorsContext ctx) {
-
-    }
-
-    @Override
-    public void enterDecorated(Python3Parser.DecoratedContext ctx) {
-
-    }
-
-    @Override
-    public void exitDecorated(Python3Parser.DecoratedContext ctx) {
-
-    }
-
-    @Override
     public void enterFuncdef(@NotNull Python3Parser.FuncdefContext ctx) {
         makeIndication();
 
@@ -306,25 +266,6 @@ public class ParsingListener extends Python3BaseListener {
 
     }
 
-    @Override
-    public void enterDel_stmt(Python3Parser.Del_stmtContext ctx) {
-
-    }
-
-    @Override
-    public void exitDel_stmt(Python3Parser.Del_stmtContext ctx) {
-
-    }
-
-    @Override
-    public void enterPass_stmt(Python3Parser.Pass_stmtContext ctx) {
-
-    }
-
-    @Override
-    public void exitPass_stmt(Python3Parser.Pass_stmtContext ctx) {
-
-    }
 
     @Override
     public void enterFlow_stmt(Python3Parser.Flow_stmtContext ctx) {
@@ -338,7 +279,7 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterBreak_stmt(Python3Parser.Break_stmtContext ctx) {
-
+        this.content = this.content.concat("break" + Dictionary.SEMICOLON);
     }
 
     @Override
@@ -348,7 +289,7 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterContinue_stmt(Python3Parser.Continue_stmtContext ctx) {
-
+        this.content = this.content.concat("continue" + Dictionary.SEMICOLON);
     }
 
     @Override
@@ -367,22 +308,23 @@ public class ParsingListener extends Python3BaseListener {
     }
 
     @Override
-    public void enterYield_stmt(Python3Parser.Yield_stmtContext ctx) {
-
-    }
-
-    @Override
-    public void exitYield_stmt(Python3Parser.Yield_stmtContext ctx) {
-
-    }
-
-    @Override
     public void enterRaise_stmt(Python3Parser.Raise_stmtContext ctx) {
-
+        this.content = this.content.concat("throw ");
     }
 
     @Override
     public void exitRaise_stmt(Python3Parser.Raise_stmtContext ctx) {
+
+    }
+
+    @Override public void enterRaise_test(Python3Parser.Raise_testContext ctx) {
+        if (hasExtendedStatement(ctx, Python3Parser.PowerContext.class )) {
+            this.content = this.content.concat(getExtendedChild(ctx, Python3Parser.PowerContext.class ).getChild(0).getText());
+        }
+    }
+
+    @Override public void exitRaise_test(Python3Parser.Raise_testContext ctx) {
+        this.content = this.content.concat(Dictionary.SEMICOLON);
 
     }
 
@@ -399,7 +341,12 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterImport_name(Python3Parser.Import_nameContext ctx) {
-        System.out.println("import_name: " + ctx.getText());
+        this.content = "import "
+                + ctx.getChild(1).getText()
+                + Dictionary.SEMICOLON
+                + Dictionary.NL
+                + Dictionary.NL
+                + this.content;
     }
 
     @Override
@@ -409,7 +356,18 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterImport_from(Python3Parser.Import_fromContext ctx) {
-        System.out.println("import from : " + ctx.getText());
+        String imp = "import " + ctx.getChild(1).getText() + Dictionary.SLASH;
+        if (ctx.getChild(3).getChildCount() > 1) {
+            for (int i = 0; i < ctx.getChild(3).getChildCount(); i++) {
+                if (i % 2 == 0) {
+                    this.content = imp
+                                    + ctx.getChild(3).getChild(i).getText()
+                                    + Dictionary.SEMICOLON
+                                    + Dictionary.NL
+                                    + this.content;
+                }
+            }
+        }
     }
 
     @Override
@@ -468,26 +426,6 @@ public class ParsingListener extends Python3BaseListener {
     }
 
     @Override
-    public void enterGlobal_stmt(Python3Parser.Global_stmtContext ctx) {
-
-    }
-
-    @Override
-    public void exitGlobal_stmt(Python3Parser.Global_stmtContext ctx) {
-
-    }
-
-    @Override
-    public void enterNonlocal_stmt(Python3Parser.Nonlocal_stmtContext ctx) {
-
-    }
-
-    @Override
-    public void exitNonlocal_stmt(Python3Parser.Nonlocal_stmtContext ctx) {
-
-    }
-
-    @Override
     public void enterFinally_suite(Python3Parser.Finally_suiteContext ctx) {
         this.content = this.content.concat(Dictionary.SPACE + "finally" + Dictionary.SPACE + Dictionary.OPEN_BRACE);
         makeIndication();
@@ -541,7 +479,9 @@ public class ParsingListener extends Python3BaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitElif_suite(Python3Parser.Elif_suiteContext ctx) { }
+    @Override public void exitElif_suite(Python3Parser.Elif_suiteContext ctx) {
+        this.content = this.content.concat(Dictionary.CLOSE_BRACE);
+    }
     /**
      * {@inheritDoc}
      *
@@ -621,12 +561,39 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterWhile_stmt(Python3Parser.While_stmtContext ctx) {
-
+        this.content = this.content.concat("while ");
     }
 
     @Override
     public void exitWhile_stmt(Python3Parser.While_stmtContext ctx) {
 
+    }
+
+    @Override public void enterWhile_test(Python3Parser.While_testContext ctx) {
+        this.content = this.content.concat(Dictionary.OPEN_BRACKET);
+        this.content = this.content.concat(ctx.getText());
+    }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitWhile_test(Python3Parser.While_testContext ctx) {
+        this.content = this.content.concat(Dictionary.CLOSE_BRACKET + Dictionary.SPACE + Dictionary.OPEN_BRACE);
+    }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void enterWhile_suite(Python3Parser.While_suiteContext ctx) { }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public void exitWhile_suite(Python3Parser.While_suiteContext ctx) {
+        this.content = this.content.concat(Dictionary.CLOSE_BRACE);
     }
 
     @Override
@@ -652,26 +619,6 @@ public class ParsingListener extends Python3BaseListener {
         this.content = this.content.concat(Dictionary.CLOSE_BRACE);
         this.depth--;
         makeIndication();
-    }
-
-    @Override
-    public void enterWith_stmt(Python3Parser.With_stmtContext ctx) {
-
-    }
-
-    @Override
-    public void exitWith_stmt(Python3Parser.With_stmtContext ctx) {
-
-    }
-
-    @Override
-    public void enterWith_item(Python3Parser.With_itemContext ctx) {
-
-    }
-
-    @Override
-    public void exitWith_item(Python3Parser.With_itemContext ctx) {
-
     }
 
     @Override
@@ -739,68 +686,8 @@ public class ParsingListener extends Python3BaseListener {
     }
 
     @Override
-    public void enterTest_nocond(Python3Parser.Test_nocondContext ctx) {
-
-    }
-
-    @Override
-    public void exitTest_nocond(Python3Parser.Test_nocondContext ctx) {
-
-    }
-
-    @Override
-    public void enterLambdef(Python3Parser.LambdefContext ctx) {
-
-    }
-
-    @Override
-    public void exitLambdef(Python3Parser.LambdefContext ctx) {
-
-    }
-
-    @Override
-    public void enterLambdef_nocond(Python3Parser.Lambdef_nocondContext ctx) {
-
-    }
-
-    @Override
-    public void exitLambdef_nocond(Python3Parser.Lambdef_nocondContext ctx) {
-
-    }
-
-    @Override
-    public void enterOr_test(Python3Parser.Or_testContext ctx) {
-
-    }
-
-    @Override
-    public void exitOr_test(Python3Parser.Or_testContext ctx) {
-
-    }
-
-    @Override
-    public void enterAnd_test(Python3Parser.And_testContext ctx) {
-
-    }
-
-    @Override
-    public void exitAnd_test(Python3Parser.And_testContext ctx) {
-
-    }
-
-    @Override
-    public void enterNot_test(Python3Parser.Not_testContext ctx) {
-
-    }
-
-    @Override
-    public void exitNot_test(Python3Parser.Not_testContext ctx) {
-
-    }
-
-    @Override
     public void enterComparison(Python3Parser.ComparisonContext ctx) {
-        if (ctx.getChildCount() > 1) {
+        if ((ctx.getChildCount() > 2) && !(ctx.getChild(1) instanceof Python3Parser.Comp_opContext )) {
             this.content = this.content.concat(ctx.getText());
         }
     }
@@ -836,7 +723,6 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterExpr(Python3Parser.ExprContext ctx) {
-        //System.out.println("INSIDE EXPR");
 
     }
 
@@ -1072,16 +958,6 @@ public class ParsingListener extends Python3BaseListener {
     }
 
     @Override
-    public void enterDictorsetmaker(Python3Parser.DictorsetmakerContext ctx) {
-
-    }
-
-    @Override
-    public void exitDictorsetmaker(Python3Parser.DictorsetmakerContext ctx) {
-
-    }
-
-    @Override
     public void enterClassdef(Python3Parser.ClassdefContext ctx) {
         this.content = this.content.concat(Dictionary.CLASS_DEF);
         this.content = this.content.concat(ctx.getChild(1).getText());
@@ -1196,26 +1072,6 @@ public class ParsingListener extends Python3BaseListener {
     }
 
     @Override
-    public void enterYield_expr(Python3Parser.Yield_exprContext ctx) {
-
-    }
-
-    @Override
-    public void exitYield_expr(Python3Parser.Yield_exprContext ctx) {
-
-    }
-
-    @Override
-    public void enterYield_arg(Python3Parser.Yield_argContext ctx) {
-
-    }
-
-    @Override
-    public void exitYield_arg(Python3Parser.Yield_argContext ctx) {
-
-    }
-
-    @Override
     public void enterStr(Python3Parser.StrContext ctx) {
 
     }
@@ -1235,46 +1091,6 @@ public class ParsingListener extends Python3BaseListener {
 
 
         }
-    }
-
-    @Override
-    public void enterNumber(Python3Parser.NumberContext ctx) {
-
-    }
-
-    @Override
-    public void exitNumber(Python3Parser.NumberContext ctx) {
-
-    }
-
-    @Override
-    public void enterInteger(Python3Parser.IntegerContext ctx) {
-
-    }
-
-    @Override
-    public void exitInteger(Python3Parser.IntegerContext ctx) {
-
-    }
-
-    @Override
-    public void visitTerminal(TerminalNode terminalNode) {
-
-    }
-
-    @Override
-    public void visitErrorNode(ErrorNode errorNode) {
-
-    }
-
-    @Override
-    public void enterEveryRule(ParserRuleContext parserRuleContext) {
-
-    }
-
-    @Override
-    public void exitEveryRule(ParserRuleContext parserRuleContext) {
-
     }
 
     /**
