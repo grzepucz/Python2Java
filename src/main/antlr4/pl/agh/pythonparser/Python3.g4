@@ -470,16 +470,21 @@ comp_if
 
 str
  : STRING_LITERAL
- | BYTES_LITERAL
  ;
 
 number
  : integer
+ | float_num
  ;
 
 integer
  : DECIMAL_INTEGER
  | HEX_INTEGER
+ ;
+
+float_num
+ : DECIMAL_INTEGER DOT DECIMAL_INTEGER
+ | HEX_INTEGER DOT HEX_INTEGER
  ;
 
 /*
@@ -569,28 +574,21 @@ HEX_INTEGER
  ;
 
 DOT : '.';
-ELLIPSIS : '...';
 STAR : '*';
 OPEN_PAREN : '(' {opened++;};
 CLOSE_PAREN : ')' {opened--;};
 COMMA : ',';
 COLON : ':';
 SEMI_COLON : ';';
-POWER : '**';
 ASSIGN : '=';
 OPEN_BRACK : '[' {opened++;};
 CLOSE_BRACK : ']' {opened--;};
 OR_OP : '|';
-XOR : '^';
 AND_OP : '&';
-LEFT_SHIFT : '<<';
-RIGHT_SHIFT : '>>';
 ADD : '+';
 MINUS : '-';
 DIV : '/';
 MOD : '%';
-IDIV : '//';
-NOT_OP : '~';
 OPEN_BRACE : '{' {opened++;};
 CLOSE_BRACE : '}' {opened--;};
 LESS_THAN : '<';
@@ -660,7 +658,7 @@ fragment SHORT_BYTES_CHAR_NO_SINGLE_QUOTE
  | [\u000E-\u0026]
  | [\u0028-\u005B]
  | [\u005D-\u007F]
- ; 
+ ;
 
 fragment SHORT_BYTES_CHAR_NO_DOUBLE_QUOTE
  : [\u0000-\u0009]

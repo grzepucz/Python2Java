@@ -1,3 +1,6 @@
+import statistics
+from statistics import mean, median
+
 class MyClass:
     """This is the module docstring."""
     a = 10
@@ -6,12 +9,6 @@ class MyClass:
 
     def functionnnn(self):
         return "szesc"
-
-# Output: 10
-print(MyClass.a)
-
-# Output: 'This is my second class'
-print(MyClass.__doc__)
 
 x = 10
 
@@ -39,13 +36,22 @@ for num in [1,2,3]:
 for fruit in 'fruits':
     print ('Current fruit :', fruit, ' asas', fruit)
 
-for fruit in range(len(fruits)):
-    print ('Current fruit :', fruit)
+count = 0
+while count < 9:
+    print ('The count is:', count)
+    count = count + 1
+
+if var3 or var1 :
+    print("Value of expression is 100")
+elif (var2 or var4):
+    print("Value of expression is 200")
+else:
+    print("Value of expression is 300")
+
 
 var = 20 - 10
 
 def do_global(a, x, y):
-    global spam
     b = 0
     b = a + a
     spam = "global spam"
