@@ -41,6 +41,10 @@ public class ParsingListener extends Python3BaseListener {
 
     }
 
+    /**
+     * Funkcja opakowywująca plik wyjściowy w klasę Javy
+     * @param ctx
+     */
     @Override
     public void enterFile_input(Python3Parser.File_inputContext ctx) {
         this.content = Dictionary.MAIN_CLASS_INTRO;
@@ -77,6 +81,11 @@ public class ParsingListener extends Python3BaseListener {
         }
     }
 
+    /**
+     * Tłumaczy wejście definicji funkcji dodając na początku modyfikator dostępu, następnie
+     * zwraca tekst dziecka czyli nazwę funkcji
+     * @param ctx
+     */
     @Override
     public void enterFuncdef(@NotNull Python3Parser.FuncdefContext ctx) {
         makeIndication();
@@ -89,6 +98,11 @@ public class ParsingListener extends Python3BaseListener {
         }
     }
 
+    /**
+     * Wychodzi z definicji funkcji konkatenując klamrę zamykająca, dodatkowo sprawdza czy
+     * funkcja ma w sobie zagnieżdzoną funkcję, jeśli tak to również dodaję ją do pliku
+     * @param ctx
+     */
     @Override
     public void exitFuncdef(Python3Parser.FuncdefContext ctx) {
         makeIndication();
@@ -109,11 +123,22 @@ public class ParsingListener extends Python3BaseListener {
         }
     }
 
+
+    /**
+     * Otwiera listę parametrów nawiasem
+     * @param ctx
+     */
     @Override
     public void enterParameters(Python3Parser.ParametersContext ctx) {
         this.content = this.content.concat( "(" );
     }
 
+
+    /**
+     * Zamyka listę parametrów nawiasem oraz otwiera klamrę, ponieważ po parametrach
+     * zawsze jest jakieś ciało
+     * @param ctx
+     */
     @Override
     public void exitParameters(Python3Parser.ParametersContext ctx) {
         this.content = this.content.concat(") {");
@@ -207,6 +232,11 @@ public class ParsingListener extends Python3BaseListener {
 
     }
 
+    /**
+     * Do deklarowania zmiennej. Wprowadzono sprawdzanie poprzedniego dziecka do rozpoznania typu,
+     * w zależności od dziecka nazwę zmiennej poprzedza odpowiedni typ
+     * @param ctx
+     */
     @Override
     public void enterExpr_stmt(Python3Parser.Expr_stmtContext ctx) {
         if (ctx.getChildCount() > 1) {
@@ -235,6 +265,10 @@ public class ParsingListener extends Python3BaseListener {
         }
     }
 
+    /**
+     * Po zadeklarowaniu zmiennej dołączany jest średnik
+     * @param ctx
+     */
     @Override
     public void exitExpr_stmt(Python3Parser.Expr_stmtContext ctx) {
         this.content = this.content.concat(Dictionary.SEMICOLON);
@@ -277,6 +311,11 @@ public class ParsingListener extends Python3BaseListener {
 
     }
 
+    /**
+     * Nasłuchuje na wejściu wyrazenia break i konkatenuje plik wyjściowy słowem
+     * kluczowym break oraz średnikiem
+     * @param ctx
+     */
     @Override
     public void enterBreak_stmt(Python3Parser.Break_stmtContext ctx) {
         this.content = this.content.concat("break" + Dictionary.SEMICOLON);
@@ -287,6 +326,11 @@ public class ParsingListener extends Python3BaseListener {
 
     }
 
+    /**
+     * Nasłuchuje na wejściu wyrażenia continue i konkatenuje plik wyjściowy słowem
+     * kluczowym continue oraz średnikiem
+     * @param ctx
+     */
     @Override
     public void enterContinue_stmt(Python3Parser.Continue_stmtContext ctx) {
         this.content = this.content.concat("continue" + Dictionary.SEMICOLON);
@@ -339,6 +383,12 @@ public class ParsingListener extends Python3BaseListener {
 
     }
 
+
+    /**
+     * Importowanie bibliotek za pomocą słowa kluczowego 'import', następnie
+     * doklejany jest tekst dziecka, czyli nazwa biblioteki oraz średnik
+     * @param ctx
+     */
     @Override
     public void enterImport_name(Python3Parser.Import_nameContext ctx) {
         this.content = "import "
@@ -425,6 +475,11 @@ public class ParsingListener extends Python3BaseListener {
 
     }
 
+    /**
+     * Nasłuchuje na wejściu instrukcji finally i konkatenuje plik wyjściowy słowem kluczowym
+     * finally oraz odpowiednim klamrami
+     * @param ctx
+     */
     @Override
     public void enterFinally_suite(Python3Parser.Finally_suiteContext ctx) {
         this.content = this.content.concat(Dictionary.SPACE + "finally" + Dictionary.SPACE + Dictionary.OPEN_BRACE);
@@ -559,6 +614,10 @@ public class ParsingListener extends Python3BaseListener {
     }
 
 
+    /**
+     * Przy wejściu do instrukcji while doklejane jest słowo kluczowe while
+     * @param ctx
+     */
     @Override
     public void enterWhile_stmt(Python3Parser.While_stmtContext ctx) {
         this.content = this.content.concat("while ");
@@ -569,13 +628,18 @@ public class ParsingListener extends Python3BaseListener {
 
     }
 
+    /**
+     * Warunek dla instrukcji while - doklejany jest nawias otwierający oraz sam warunek
+     * @param ctx
+     */
     @Override public void enterWhile_test(Python3Parser.While_testContext ctx) {
         this.content = this.content.concat(Dictionary.OPEN_BRACKET);
         this.content = this.content.concat(ctx.getText());
     }
     /**
      * {@inheritDoc}
-     *
+     * Uzupełnienie warunku dla instrukcji while poprzez doklejenie nawiasu zamykającego
+     * oraz otwarcie klamry dla ciała instrukcji while
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitWhile_test(Python3Parser.While_testContext ctx) {
@@ -596,11 +660,19 @@ public class ParsingListener extends Python3BaseListener {
         this.content = this.content.concat(Dictionary.CLOSE_BRACE);
     }
 
+    /**
+     * Nasłuchuje na wejściu do wyrażenia for doklejając słowo kluczowe for
+     * @param ctx
+     */
     @Override
     public void enterFor_stmt(Python3Parser.For_stmtContext ctx) {
         this.content = this.content.concat("for " + Dictionary.OPEN_BRACKET);
     }
 
+    /**
+     * Nasłuchuje na wyjściu instrukcji for i konkatenuje plik wyjściowy zamykającącą klamrą
+     * @param ctx
+     */
     @Override
     public void exitFor_stmt(Python3Parser.For_stmtContext ctx) {
         makeIndication();
@@ -614,6 +686,10 @@ public class ParsingListener extends Python3BaseListener {
         makeIndication();
     }
 
+    /**
+     * Nasłuchuje na wyjściu instrukcji try i konkatenuje plik wyjściowy zamykającącą klamrą
+     * @param ctx
+     */
     @Override
     public void exitTry_stmt(Python3Parser.Try_stmtContext ctx) {
         this.content = this.content.concat(Dictionary.CLOSE_BRACE);
@@ -644,6 +720,10 @@ public class ParsingListener extends Python3BaseListener {
 
     }
 
+    /**
+     * Nasłuchuje na wejściu do klauzuli except a następnie konkatenuje odpowiednie klamry
+     * @param ctx
+     */
     @Override
     public void enterExcept_clause_suite(Python3Parser.Except_clause_suiteContext ctx) {
         this.content = this.content.concat(Dictionary.CLOSE_BRACKET + Dictionary.SPACE + Dictionary.OPEN_BRACE);
@@ -760,6 +840,10 @@ public class ParsingListener extends Python3BaseListener {
 
     }
 
+    /**
+     * Słuzy do obsługi działań arytmetycznych
+     * @param ctx
+     */
     @Override
     public void enterArith_expr(Python3Parser.Arith_exprContext ctx) {
         if (
@@ -904,6 +988,11 @@ public class ParsingListener extends Python3BaseListener {
 
     }
 
+    /**
+     * Nasłuchuje na wejściu do listy wyrażeń, sprawdza dziecko i na jego podstawie
+     * konkatenuje odpowiedni typ wraz z nazwą wyrażenia
+     * @param ctx
+     */
     @Override
     public void enterExprlist(Python3Parser.ExprlistContext ctx) {
         ParseTree testlist = ctx.getParent().getChild(3);
@@ -957,6 +1046,11 @@ public class ParsingListener extends Python3BaseListener {
         }
     }
 
+    /**
+     * Nasłuchuje na wejściu do definicji klasy i konkatenuje słowo kluczowe class,
+     * nazwę klasy oraz otwiera klamrę
+     * @param ctx
+     */
     @Override
     public void enterClassdef(Python3Parser.ClassdefContext ctx) {
         this.content = this.content.concat(Dictionary.CLASS_DEF);
@@ -965,6 +1059,10 @@ public class ParsingListener extends Python3BaseListener {
         this.content = this.content.concat(Dictionary.OPEN_BRACE);
     }
 
+    /**
+     * Nasłuchuje na wyjściu definicji klasy i zamyka klamrę
+     * @param ctx
+     */
     @Override
     public void exitClassdef(Python3Parser.ClassdefContext ctx) {
         this.content = this.content.concat(Dictionary.CLOSE_BRACE);
@@ -1022,6 +1120,10 @@ public class ParsingListener extends Python3BaseListener {
 
     }
 
+    /**
+     * Nasłuchuje na wyjściu wyrażenia listy argumentów i zamyka klamrę
+     * @param ctx
+     */
     @Override
     public void exitArglist(Python3Parser.ArglistContext ctx) {
         if (!hasExtendedStatement(ctx, Python3Parser.Arith_exprContext.class)) {
@@ -1140,6 +1242,10 @@ public class ParsingListener extends Python3BaseListener {
         makeIndication();
     }
 
+    /**
+     *
+     * @param ctx
+     */
     public String cutLastOccurence(String input, String needle, String replacement) {
         int pivot = input.lastIndexOf(needle);
         String firstPart = input.substring(0, pivot);
@@ -1149,12 +1255,23 @@ public class ParsingListener extends Python3BaseListener {
         return firstPart.concat(secondPart);
     }
 
+    /**
+     *
+     * @param ctx
+     */
     public String getLastPartFrom(String input, String needle) {
         int pivot = input.lastIndexOf(needle);
 
         return input.substring(pivot);
     }
 
+    /**
+     * Służy do obsługi pętli for. W tej funkcji sprawdzany jest kolejny węzeł.
+     * W zależności od wartości tego węzła ustalany jest typ danych po których
+     * następuje iteracja. Dla odpowiedniego typu doklejane są kolejne części
+     * instrukcji ;for;
+     * @param ctx
+     */
     public String processNotIterableFor(String content, ParseTree node) {
         String iter = getComplexParent(node, Python3Parser.For_stmtContext.class).getChild(1).getText();
 
