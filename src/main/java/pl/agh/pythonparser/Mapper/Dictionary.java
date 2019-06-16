@@ -1,5 +1,9 @@
 package pl.agh.pythonparser.Mapper;
 
+/**
+ *  Klasa Dictionary zawiera często powtarzające się znaki specjalne. Dzięki użyciu konwencji, możemy w klasie Listenera,
+ *  szybko znaleźć interesjący nas fragment kodu, wiedząc, jakie znaki zawiera.
+ */
 public class Dictionary {
     public static final String SPACE = " ";
     public static final String TAB = "\t";
@@ -16,6 +20,7 @@ public class Dictionary {
     public static final String OPEN_SQ_BRACKET = "[";
     public static final String CLOSE_SQ_BRACKET = "]";
     public static final String COMPARE = "==";
+    public static final String ASSIGN = "=";
     public static final String APO = "'";
     public static final String SLASH = "/";
     public static final String CLASS_DEF = "public class ";

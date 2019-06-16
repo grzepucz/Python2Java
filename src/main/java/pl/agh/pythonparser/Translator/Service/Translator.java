@@ -3,9 +3,8 @@ package pl.agh.pythonparser.Translator.Service;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import pl.agh.io.FileAccessor;
 import pl.agh.pythonparser.Builder;
-import pl.agh.pythonparser.Listener.ParsingListener;
+import pl.agh.pythonparser.Listener.Generator;
 import pl.agh.pythonparser.Python3Parser;
-import pl.agh.pythonparser.Translator.Translatable;
 
 public class Translator{
 
@@ -19,7 +18,7 @@ public class Translator{
         ).build();
 
         ParseTreeWalker.DEFAULT.walk(
-                new ParsingListener(pathTo),
+                new Generator(pathTo),
                 parser.file_input()
         );
 

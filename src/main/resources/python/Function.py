@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 class MyClass:
   """This is the module docstring."""
   a = 10
@@ -15,6 +17,7 @@ class SecondClass:
   """This is the 2nd module docstring."""
   x = 1
   napis = "naafawfm"
+  x = x + 1
 
   def printuj(self):
     for fruit in 'fruits':

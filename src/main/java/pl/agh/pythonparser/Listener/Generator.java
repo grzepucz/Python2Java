@@ -1,10 +1,7 @@
 package pl.agh.pythonparser.Listener;
 
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.NotNull;
-import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.tree.TerminalNode;
 import org.codehaus.plexus.util.StringUtils;
 import pl.agh.io.FileAccessor;
 import pl.agh.pythonparser.Mapper.Dictionary;
@@ -16,7 +13,7 @@ import java.util.ArrayList;
 
 import static pl.agh.pythonparser.Mapper.Mapper.*;
 
-public class ParsingListener extends Python3BaseListener {
+public class Generator extends Python3BaseListener {
 
     private String filename;
     private String content;
@@ -24,11 +21,11 @@ public class ParsingListener extends Python3BaseListener {
     public ArrayList<String> variables;
     private String pythonInfo;
 
-    public ParsingListener() {
+    public Generator() {
         this("result");
     }
 
-    public ParsingListener(String filename) {
+    public Generator(String filename) {
         this.filename = filename;
         this.pythonInfo = "";
         this.variables = new ArrayList<>();
@@ -240,7 +237,7 @@ public class ParsingListener extends Python3BaseListener {
     @Override
     public void enterExpr_stmt(Python3Parser.Expr_stmtContext ctx) {
         if (ctx.getChildCount() > 1) {
-            if (!this.variables.contains(ctx.getChild(0).getText())) {
+            if (!this.variables.contains(ctx.getChild(0).getText()) ) {
                 if (
                         (StringUtils.isNumeric(ctx.getChild(2).getText()))
                         || (hasExtendedStatement(ctx.getChild(2), Python3Parser.Arith_exprContext.class))
@@ -251,6 +248,12 @@ public class ParsingListener extends Python3BaseListener {
                                 || ctx.getChild(2).getText().startsWith(Dictionary.APO)
                 ) {
                     this.content = this.content.concat("String" + Dictionary.SPACE);
+                } else if (
+                        (ctx.getChild(2).getText().equals("true"))
+                                || (ctx.getChild(2).getText().equals("false"))
+                                || (hasExtendedStatement(ctx.getChild(2), Python3Parser.Arith_exprContext.class))
+                ) {
+                    this.content = this.content.concat("boolean" + Dictionary.SPACE);
                 }
 
                 this.variables.add(ctx.getChild(0).getText());
@@ -353,7 +356,7 @@ public class ParsingListener extends Python3BaseListener {
 
     @Override
     public void enterRaise_stmt(Python3Parser.Raise_stmtContext ctx) {
-        this.content = this.content.concat("throw ");
+        this.content = this.content.concat("throw new ");
     }
 
     @Override
@@ -846,10 +849,8 @@ public class ParsingListener extends Python3BaseListener {
      */
     @Override
     public void enterArith_expr(Python3Parser.Arith_exprContext ctx) {
-        if (
-                (hasParentType(ctx.getParent(), Python3Parser.Return_stmtContext.class)
-                && (hasParentType(ctx.getParent(), Python3Parser.ArglistContext.class))
-                ))
+        if ((hasParentType(ctx.getParent(), Python3Parser.Return_stmtContext.class)
+                && (hasParentType(ctx.getParent(), Python3Parser.ArglistContext.class))))
             return;
 
         if (ctx.getChildCount() > 1) {
@@ -930,7 +931,9 @@ public class ParsingListener extends Python3BaseListener {
     @Override
     public void enterTestlist_comp(Python3Parser.Testlist_compContext ctx) {
         if (ctx.getParent().getText().startsWith("[")) {
-            this.content = processNotIterableFor(this.content, ctx);
+            if (hasComplexParentType(ctx, Python3Parser.For_stmtContext.class)) {
+                this.content = processNotIterableFor(this.content, ctx);
+            }
         }
     }
 
@@ -956,36 +959,6 @@ public class ParsingListener extends Python3BaseListener {
     @Override
     public void exitTrailer(Python3Parser.TrailerContext ctx) {
        // this.content = this.content.concat(Dictionary.CLOSE_BRACKET);
-    }
-
-    @Override
-    public void enterSubscriptlist(Python3Parser.SubscriptlistContext ctx) {
-
-    }
-
-    @Override
-    public void exitSubscriptlist(Python3Parser.SubscriptlistContext ctx) {
-
-    }
-
-    @Override
-    public void enterSubscript(Python3Parser.SubscriptContext ctx) {
-
-    }
-
-    @Override
-    public void exitSubscript(Python3Parser.SubscriptContext ctx) {
-
-    }
-
-    @Override
-    public void enterSliceop(Python3Parser.SliceopContext ctx) {
-
-    }
-
-    @Override
-    public void exitSliceop(Python3Parser.SliceopContext ctx) {
-
     }
 
     /**
@@ -1068,6 +1041,7 @@ public class ParsingListener extends Python3BaseListener {
         this.content = this.content.concat(Dictionary.CLOSE_BRACE);
 //        this.content = this.content.concat(Dictionary.NL);
         makeIndication();
+        this.variables.remove("data");
     }
 
     /**
@@ -1102,6 +1076,10 @@ public class ParsingListener extends Python3BaseListener {
                                 + Dictionary.DOT + "size"
                 );
                 break;
+            case "open":
+                this.content = this.content.concat(ctx.getText())
+                        .replace(Dictionary.OPEN_BRACKET+ctx.getText(), "File(" + ctx.getText());
+                break;
             case "abs":
                 this.content = this.content.replace(
                         "abs",
@@ -1109,13 +1087,13 @@ public class ParsingListener extends Python3BaseListener {
                 );
                 break;
             case "range":
-//                this.content = this.content.replace(
-//                        "Range.between(",
-//                        "Range.between(0, "
-//                );
-//                break;
+                this.content = this.content.replace(
+                        "Range.between(",
+                        "Range.between(0, "
+                );
+                break;
             default:
-               this.content = this.content.concat(ctx.getText());
+               //this.content = this.content.concat(ctx.getText());
         }
 
     }
@@ -1242,10 +1220,6 @@ public class ParsingListener extends Python3BaseListener {
         makeIndication();
     }
 
-    /**
-     *
-     * @param ctx
-     */
     public String cutLastOccurence(String input, String needle, String replacement) {
         int pivot = input.lastIndexOf(needle);
         String firstPart = input.substring(0, pivot);
@@ -1257,7 +1231,8 @@ public class ParsingListener extends Python3BaseListener {
 
     /**
      *
-     * @param ctx
+     * @param input
+     * @param needle
      */
     public String getLastPartFrom(String input, String needle) {
         int pivot = input.lastIndexOf(needle);
@@ -1270,37 +1245,41 @@ public class ParsingListener extends Python3BaseListener {
      * W zależności od wartości tego węzła ustalany jest typ danych po których
      * następuje iteracja. Dla odpowiedniego typu doklejane są kolejne części
      * instrukcji ;for;
-     * @param ctx
+     * @param content
+     * @param node
      */
     public String processNotIterableFor(String content, ParseTree node) {
         String iter = getComplexParent(node, Python3Parser.For_stmtContext.class).getChild(1).getText();
 
-        if ((node.getText().startsWith("\"")) || (node.getText().startsWith("'"))) {
-            String prefix = "String[] data = "
-                    + node.getParent().getText()
-                    .replace("[","{")
-                    .replace("]","}")
-                    + ";";
-            String replacement = prefix + makeLocalIndication() + "for (String " + iter + " : data) {";
-            return cutLastOccurence(
-                    content,
-                    getLastPartFrom(content, "for"),
-                    replacement
-            );
-        } else if (Character.isDigit(node.getText().charAt(0))) {
-            String prefix = "double[] data = "
-                    + node.getParent().getText()
-                    .replace("[","{")
-                    .replace("]","}")
-                    + ";\n";
-            String replacement = prefix + makeLocalIndication() + "for (Double " + iter + " : data) {";
-            return cutLastOccurence(
-                    content,
-                    getLastPartFrom(content, "for"),
-                    replacement
-            );
+        if (!this.variables.contains("data")) {
+            if ((node.getText().startsWith("\"")) || (node.getText().startsWith("'"))) {
+                String prefix = "String[] data = "
+                        + node.getParent().getText()
+                        .replace("[","{")
+                        .replace("]","}")
+                        + ";";
+                String replacement = prefix + makeLocalIndication() + "for (String " + iter + " : data) {";
+                return cutLastOccurence(
+                        content,
+                        getLastPartFrom(content, "for"),
+                        replacement
+                );
+            } else if (Character.isDigit(node.getText().charAt(0))) {
+                String prefix = "double[] data = "
+                        + node.getParent().getText()
+                        .replace("[", "{")
+                        .replace("]", "}")
+                        + ";\n";
+                String replacement = prefix + makeLocalIndication() + "for (Double " + iter + " : data) {";
+                return cutLastOccurence(
+                        content,
+                        getLastPartFrom(content, "for"),
+                        replacement
+                );
+            }
         } else {
             return content;
         }
+        return iter;
     }
 }

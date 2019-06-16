@@ -7,52 +7,20 @@ public class Main {
 		static void execute() {
 			
 			
-			public class MyClass {
-				
-				/** CLASS_INFO = """This is the module docstring.""" */;
-				double a = 10;
-				String b = "baba";
-				b = "sratata";
-				
-				public String functionnnn() {
-				
-					return "szesc";
-					
-				
-				}
-				
-			}
-			
-			double x = 10;
-			
-			public Double rec_fib(Object n) {
-			
-				
-				/** CLASS_INFO = """inefficient recursive function as defined, returns Fibonacci number""" */;
-				if (n>1){
-				
-					return rec_fib(n-1) + rec_fib(n-2) n-1n-2;
-					
-				
-				}
-				return n;
-				
-			
-			}
-			for (Object i : Range.between(40,50)) {
-				System.out.println(i + rec_fib(i)(i));
-				
-			
-			}
-			double[] data = {1,2,3};
-
-			for (Double num : data) {
-				System.out.println("Current number :" + num);
-				
-			
-			}
 			for (char fruit : "fruits".toCharArray()) {
 				System.out.println("Current fruit :" + fruit + " asas" + fruit);
+				if (var3 || var1){
+				
+					throw new Exception();
+					
+				
+				}
+				String[] data = {"raz","dwa","trzy"};
+				for (String fruit : data) {
+					System.out.println("Current fruit :" + fruit + " asas" + fruit);
+					
+				
+				}
 				
 			
 			}
@@ -62,6 +30,11 @@ public class Main {
 				count = count + 1 ;
 				
 			}
+			double anda = 20 - 10 ;
+			bool var1 = true;
+			bool var2 = false;
+			bool var3 = true;
+			bool var4 = false;
 			if (var3 || var1){
 			
 				System.out.println("Value of expression is 100");
@@ -75,28 +48,6 @@ public class Main {
 				System.out.println("Value of expression is 300");
 				
 			}
-			double var = 20 - 10 ;
-			
-			public Double do_global(Object a,Object x,Object y) {
-			
-				b = 0;
-				b = a + a ;
-				String spam = "global spam";
-				return b + a ;
-				
-			
-			}
-			
-			public void scope_test() {
-			
-				spam = "test spam";
-				(10,"asa",10.994);
-				System.out.println("After global assignmnt:" + spam);
-				
-			
-			}
-			;
-			System.out.println("In global scope:" + spam);
 			
 		}
 	}

@@ -1,6 +1,5 @@
 package pl.agh.pythonparser.Mapper;
 
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 import pl.agh.pythonparser.Python3Parser;
 
@@ -202,6 +201,22 @@ public class Mapper {
         }
 
         return getComplexParent(node.getParent(), pattern);
+    }
+
+
+    public static ParseTree getFirstComplexParentForVar(ParseTree node) {
+        if (node.getChildCount() > 2) {
+            if (node.getChild(1).getText().equals(Dictionary.ASSIGN)) {
+                return node;
+            }
+
+        }
+
+        if (node instanceof Python3Parser.File_inputContext) {
+            return null;
+        }
+
+        return getFirstComplexParentForVar(node.getParent());
     }
 
     public static String getType(String type) {
