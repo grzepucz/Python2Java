@@ -61,6 +61,11 @@ public class Mapper {
                 || Pattern.compile("^[a-z]+\\(.*\\)$").matcher(context).matches();
     }
 
+    /**
+     * Zwraca operator pythona przetlumaczony na jave
+     * @param context
+     * @return
+     */
     public static String getSpecial(String context) {
         if (Mapper.getOperator(context) != null)
         {
@@ -77,6 +82,11 @@ public class Mapper {
             return "";
     }
 
+    /**
+     * Funkcja sprawdzajaca, czy wezel rozgalezia sie do lisci, czy kazdy jego potomek ma tylko jedno dziecko
+     * @param node
+     * @return
+     */
     public static boolean isComplexStatement(ParseTree node) {
         if (node.getChildCount() < 1) {
             return false;
@@ -87,10 +97,21 @@ public class Mapper {
         }
     }
 
+    /**
+     * FUnkcja sprawdzajaca, czy wezel jest lisciem
+     * @param node
+     * @return
+     */
     public static boolean isLeaf(ParseTree node) {
         return !isComplexStatement(node);
     }
 
+    /**
+     * Funkcja pomocnicza, sprawdza, czy wezel ma potomka, ktory ma co najmniej dwojke dzieci oraz konkretny kontekst
+     * @param node
+     * @param pattern
+     * @return
+     */
     public static boolean hasExtendedStatement(ParseTree node, Class<? extends ParseTree> pattern) {
        if (pattern.isInstance(node) && (node.getChildCount() > 1)) {
            return true;
@@ -111,6 +132,12 @@ public class Mapper {
        return false;
     }
 
+    /**
+     * Sprawdza, czy wezel ma rodzica o podanym typie
+     * @param node
+     * @param pattern
+     * @return
+     */
     public static boolean hasParentType(ParseTree node, Class<? extends ParseTree> pattern) {
         if (pattern.isInstance(node)) {
             return true;
@@ -124,6 +151,12 @@ public class Mapper {
     }
 
 
+    /**
+     * Funkcja pomocnicza, sprawdza, czy wezel ma rodzica, ktory ma co najmniej dwojke dzieci oraz konkretny kontekst
+     * @param node
+     * @param pattern
+     * @return
+     */
     public static boolean hasComplexParentType (ParseTree node, Class<? extends ParseTree> pattern) {
         if (pattern.isInstance(node) && (node.getChildCount() > 1)) {
             return true;
@@ -136,6 +169,13 @@ public class Mapper {
         return hasParentType(node.getParent(), pattern);
     }
 
+    /**
+     * Funkcja pomocnicza, zwracajaca wezeł, który jest rodzicem wezła, mającego co najmniej 2 dzieci i bedacego
+     * w odpowiednim kontekscie
+     * @param node
+     * @param pattern
+     * @return
+     */
     public static ParseTree getExtendedChild (ParseTree node, Class<? extends ParseTree> pattern) {
         if (pattern.isInstance(node) && (node.getChildCount() > 1)) {
             return node;
@@ -156,6 +196,11 @@ public class Mapper {
         return null;
     }
 
+    /**
+     * Funkcja zwracająca ostatnie dziecko drzewa
+     * @param node
+     * @return
+     */
     public static ParseTree getLeaf (ParseTree node) {
         if (node.getChildCount() == 0) {
             return node;
@@ -191,6 +236,13 @@ public class Mapper {
         return "void";
     }
 
+    /**
+     * Funkcja pomocnicza, przeszukujaca drzewo, w poszukiwaniu wezla, bedącego rodzicem co najmniej 2 dzieci
+     * oraz posiadajacy wybrany kontekst
+     * @param node
+     * @param pattern
+     * @return
+     */
     public static ParseTree getComplexParent (ParseTree node, Class<? extends ParseTree> pattern) {
         if (pattern.isInstance(node) && (node.getChildCount() > 1)) {
             return node;
@@ -204,29 +256,29 @@ public class Mapper {
     }
 
 
-    public static ParseTree getFirstComplexParentForVar(ParseTree node) {
-        if (node.getChildCount() > 2) {
-            if (node.getChild(1).getText().equals(Dictionary.ASSIGN)) {
-                return node;
-            }
-
-        }
-
-        if (node instanceof Python3Parser.File_inputContext) {
-            return null;
-        }
-
-        return getFirstComplexParentForVar(node.getParent());
-    }
-
+    /**
+     * Sprawdza, czy podany ciag znakow, jest jednym ze specjalnych typow. Jesli tak, zwraca jego javowy odpowiednik
+     * @param type
+     * @return
+     */
     public static String getType(String type) {
         return !types.containsKey(type) ? null : types.get(type.toLowerCase());
     }
 
+    /**
+     * Sprawdza, czy podany ciag znakow, jest jednym z operatorów pythona. Jesli tak, zwraca jego javowy odpowiednik
+     * @param operator
+     * @return
+     */
     public static String getOperator(String operator) {
         return !operators.containsKey(operator) ? null : operators.get(operator.toLowerCase());
     }
 
+    /**
+     * Sprawdza, czy podany ciag znakow, jest jedna z funkcji wbudowanych pythona. Jesli tak, zwraca jej javowy odpowiednik
+     * @param buildInFoo
+     * @return
+     */
     public static String getBuildIn(String buildInFoo) {
         return !buildIn.containsKey(buildInFoo) ? null : buildIn.get(buildInFoo.toLowerCase());
     }

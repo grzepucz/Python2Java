@@ -1,53 +1,27 @@
-import statistics/median;
-import statistics/mean;
-import statistics;
-
 public class Main {
 	public static class Source {
 		static void execute() {
-			
-			
-			for (char fruit : "fruits".toCharArray()) {
-				System.out.println("Current fruit :" + fruit + " asas" + fruit);
-				if (var3 || var1){
+			try {
 				
-					throw new Exception();
+					String data = "src/path/to/file";
+					fh = File(data);
+					
+				
+				} catch (IOError ex) {
+				
+					System.out.println("Error: can\"t find file or read data");
+					
+				}  catch (ValueError argument) {
+				
+					System.out.println("The argument does not contain numbers\n" + Argument);
+					
+				}  finally {
+				
+					System.out.println("This would always be executed.");
 					
 				
 				}
-				String[] data = {"raz","dwa","trzy"};
-				for (String fruit : data) {
-					System.out.println("Current fruit :" + fruit + " asas" + fruit);
-					
-				
-				}
-				
 			
-			}
-			double count = 0;
-			while (count<9) {
-				System.out.println("The count is:" + count);
-				count = count + 1 ;
-				
-			}
-			double anda = 20 - 10 ;
-			bool var1 = true;
-			bool var2 = false;
-			bool var3 = true;
-			bool var4 = false;
-			if (var3 || var1){
-			
-				System.out.println("Value of expression is 100");
-				
-			
-			} else if ((var2 || var4)){
-			
-				System.out.println("Value of expression is 200");
-				
-			} else {
-				System.out.println("Value of expression is 300");
-				
-			}
 			
 		}
 	}

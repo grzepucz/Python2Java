@@ -5,8 +5,7 @@ import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 
 /**
- * An error listener that immediately bails out of the parse (does not recover)
- * and throws a runtime exception with a descriptive error message.
+ * Listener, przy napotkaniu bledu porzuca parsowanie i zwraca kod. Nie zachowuje kontekstów
  */
 public class DescriptiveBailErrorListener extends BaseErrorListener {
 

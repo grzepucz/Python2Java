@@ -1,5 +1,5 @@
 class MyClass:
-	"This is my second class"
+	"""This is my class"""
 	a = 10
 	def func(self):
 		print('Hello')
