@@ -1,0 +1,32 @@
+public class Main {
+	public static class Source {
+		static void execute() {
+			try {
+				
+					String data = "src/path/to/file";
+					fh = File(data);
+					
+				
+				} catch (IOError ex) {
+				
+					System.out.println("Error: can\"t find file or read data");
+					
+				}  catch (ValueError argument) {
+				
+					System.out.println("The argument does not contain numbers\n" + Argument);
+					
+				}  finally {
+				
+					System.out.println("This would always be executed.");
+					
+				
+				}
+			
+			
+		}
+	}
+	
+	public static void main(String[] args) {
+		Source.execute();
+	}
+}
