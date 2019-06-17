@@ -150,12 +150,22 @@ public class Generator extends Python3BaseListener {
 //            System.out.println("Argument list is empty, skipped");
 //        }
     }
-
+	
+    /**
+     *
+     * @param ctx
+     */
     @Override
     public void exitTypedargslist(Python3Parser.TypedargslistContext ctx) {
         this.content = this.content.substring(0, this.content.length() - 1);
     }
 
+	
+    /**
+     * Funkcja nasłuchuje wejście definicji obiektu dodając słowo kluczowe Object, a następnie 
+	 * dokleja nazwę obiektu z pliku wejściowego
+     * @param ctx
+     */
     @Override
     public void enterTfpdef(Python3Parser.TfpdefContext ctx) {
         if (Mapper.isSpecial(ctx.getText())) {
@@ -164,7 +174,12 @@ public class Generator extends Python3BaseListener {
             this.content = this.content.concat("Object " + ctx.getText());
         }
     }
-
+	
+	
+    /**
+     * Nasłuchuje wyjście oraz dodaje przecinek
+     * @param ctx
+     */
     @Override
     public void exitTfpdef(Python3Parser.TfpdefContext ctx) {
         this.content = this.content.concat(Dictionary.COMMA);
@@ -277,6 +292,11 @@ public class Generator extends Python3BaseListener {
         this.content = this.content.concat(Dictionary.SEMICOLON);
     }
 
+	
+    /**
+     * 
+     * @param ctx
+     */
     @Override
     public void enterTestlist_star_expr(Python3Parser.Testlist_star_exprContext ctx) {
        ParseTree leaf = ctx.getChild(0);
@@ -344,16 +364,29 @@ public class Generator extends Python3BaseListener {
 
     }
 
+	
+    /**
+     * Nasłuchuje wejście wyrażenia return, po znalezieniu dokleja słowo kluczowe return
+     * @param ctx
+     */
     @Override
     public void enterReturn_stmt(Python3Parser.Return_stmtContext ctx) {
         this.content = this.content.concat(Dictionary.RETURN);
     }
-
+    /**
+     * Nasłuchuje wyjście wyrażenia return, po znalezieniu dokleja średnik
+     * @param ctx
+     */
     @Override
     public void exitReturn_stmt(Python3Parser.Return_stmtContext ctx) {
         this.content = this.content.concat(Dictionary.SEMICOLON);
     }
 
+	/**
+     * Nasłuchuje wejście wyrażenia raise w języku python, po znalezieniu dokleja odpowiadające 
+	 * mu 'throw new' w javie
+     * @param ctx
+     */
     @Override
     public void enterRaise_stmt(Python3Parser.Raise_stmtContext ctx) {
         this.content = this.content.concat("throw new ");
@@ -363,17 +396,27 @@ public class Generator extends Python3BaseListener {
     public void exitRaise_stmt(Python3Parser.Raise_stmtContext ctx) {
 
     }
-
+	
+	 /**
+     * Nasłuchuje wejście do warunku wyrażenia raise, następnie dokleja wartość dziecka w drzewie w 
+	 * przypadku, gdy jest to wyrażenie rozszerzone
+     * @param ctx
+     */
     @Override public void enterRaise_test(Python3Parser.Raise_testContext ctx) {
         if (hasExtendedStatement(ctx, Python3Parser.PowerContext.class )) {
             this.content = this.content.concat(getExtendedChild(ctx, Python3Parser.PowerContext.class ).getChild(0).getText());
         }
     }
 
+	    /**
+     * Nasłuchuje wyjście warunku dodając średnik
+     * @param ctx
+     */
     @Override public void exitRaise_test(Python3Parser.Raise_testContext ctx) {
         this.content = this.content.concat(Dictionary.SEMICOLON);
 
     }
+
 
     @Override
     public void enterImport_stmt(Python3Parser.Import_stmtContext ctx) {
@@ -407,6 +450,11 @@ public class Generator extends Python3BaseListener {
 
     }
 
+    /**
+     * Nasłuchuje wejście wyrażenia import, po znalezieniu dokleja do pliku wyjściowego
+	 * słowo kluczowe 'import', pobiera tekst dziecka, czyli nazwę importowanej biblioteki
+     * @param ctx
+     */
     @Override
     public void enterImport_from(Python3Parser.Import_fromContext ctx) {
         String imp = "import " + ctx.getChild(1).getText() + Dictionary.SLASH;
@@ -495,6 +543,10 @@ public class Generator extends Python3BaseListener {
         //this.content = this.content.concat(Dictionary.CLOSE_BRACE);
     }
 
+    /**
+     * Nasłuchuje wejście wyrażenia if, po znalezieniu dokleja słowo kluczowe 'if' do pliku wyjściowego
+     * @param ctx
+     */
     @Override
     public void enterIf_stmt(Python3Parser.If_stmtContext ctx) {
         this.content = this.content.concat("if ");
@@ -506,61 +558,55 @@ public class Generator extends Python3BaseListener {
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
+     * Nasłuchuje wejście do ciała wyrażenia 'if', następnie dokleja otwierającą klamrę
      */
     @Override public void enterIf_suite(Python3Parser.If_suiteContext ctx) {
         this.content = this.content.concat(Dictionary.OPEN_BRACE);
         makeIndication();
     }
+	
     /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
+     * Nasłuchuje wyjście z ciała wyrażenia 'if', następnie dokleja zamykającącą klamrę
      */
     @Override public void exitIf_suite(Python3Parser.If_suiteContext ctx) {
         makeIndication();
         this.content = this.content.concat(Dictionary.CLOSE_BRACE);
     }
+	
     /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
+     * Nasłuchuje wejście do ciała wyrażenia 'elif', następnie dokleja otwierającą klamrę
      */
     @Override public void enterElif_suite(Python3Parser.Elif_suiteContext ctx) {
         this.content = this.content.concat(Dictionary.OPEN_BRACE);
         makeIndication();
     }
+	
     /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
+     * Nasłuchuje wyjście z ciała wyrażenia 'elif', następnie dokleja zamykającącą klamrę
      */
     @Override public void exitElif_suite(Python3Parser.Elif_suiteContext ctx) {
         this.content = this.content.concat(Dictionary.CLOSE_BRACE);
     }
+	
     /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
+     * Nasłuchuje wejście wyrażenia 'else', następnie dokleja słowo kluczowe 'else' oraz otwierającą klamrę
      */
     @Override public void enterElse_suite(Python3Parser.Else_suiteContext ctx) {
         this.content = this.content.concat(" else ");
         this.content = this.content.concat(Dictionary.OPEN_BRACE);
     }
+	
     /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
+     * Nasłuchuje na wyjściu wyrażenia 'else' oraz dokleja do pliku wyjśćiowego zamykającą klamrę
      */
     @Override public void exitElse_suite(Python3Parser.Else_suiteContext ctx) {
         this.content = this.content.concat(Dictionary.CLOSE_BRACE);
     }
+	
     /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
+     * Nasłuchuje na wejściu do warunku wyrażenia 'elif', po znalezieniu dokleja słowa 'else if'
+	 * oraz nawias otwierający, następnie zastępuje 'and' lub 'or' odpowiadającymi im w języku java
+	 * ampersandami lub dwoma pionowymi kreskami
      */
     @Override public void enterElif_test(Python3Parser.Elif_testContext ctx) {
         this.content = this.content.concat(" else if ");
@@ -569,37 +615,32 @@ public class Generator extends Python3BaseListener {
                 ctx.getText().replace("and", " && ").replace("or", " || ")
         );
     }
+	
     /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
+     * Nasłuchuje na wyjściu z warunku wyrażenia elif oraz dokleja nawias zamykający
      */
     @Override public void exitElif_test(Python3Parser.Elif_testContext ctx) {
         this.content = this.content.concat(Dictionary.CLOSE_BRACKET);
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
+     * Funkcja doklejająca do pliku wyjściowego ampersandy po znalezieniu operatora 'and'
      */
     @Override public void enterAnd_op(Python3Parser.And_opContext ctx) {
         this.content = this.content.concat(" && ");
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
+     * Funkcja doklejająca do pliku wyjściowego pionowe kreski po znalezieniu operatora 'or'
      */
     @Override public void enterOr_op(Python3Parser.Or_opContext ctx) {
         this.content = this.content.concat(" || ");
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
+     * Nasłuchuje na wejściu do warunku wyrażenia 'if', 
+	 * nawias otwierający, następnie zastępuje 'and' lub 'or' odpowiadającymi im w języku java
+	 * ampersandami lub dwoma pionowymi kreskami
      */
     @Override public void enterIf_test(Python3Parser.If_testContext ctx) {
         this.content = this.content.concat(Dictionary.OPEN_BRACKET);
@@ -607,10 +648,9 @@ public class Generator extends Python3BaseListener {
                 ctx.getText().replace("and", " && ").replace("or", " || ")
         );
     }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
+
+	/**
+     * Nasłuchuje na wyjściu z warunku wyrażenia if oraz dokleja nawias zamykający
      */
     @Override public void exitIf_test(Python3Parser.If_testContext ctx) {
         this.content = this.content.concat(Dictionary.CLOSE_BRACKET);
@@ -648,16 +688,15 @@ public class Generator extends Python3BaseListener {
     @Override public void exitWhile_test(Python3Parser.While_testContext ctx) {
         this.content = this.content.concat(Dictionary.CLOSE_BRACKET + Dictionary.SPACE + Dictionary.OPEN_BRACE);
     }
+	
     /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
+     * 
      */
-    @Override public void enterWhile_suite(Python3Parser.While_suiteContext ctx) { }
+    @Override public void enterWhile_suite(Python3Parser.While_suiteContext ctx) { 
+	}
+
     /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
+     * Funkcja doklejająca klamrę zamykającąpo wyjściu z ciała wyrażenia 'while'
      */
     @Override public void exitWhile_suite(Python3Parser.While_suiteContext ctx) {
         this.content = this.content.concat(Dictionary.CLOSE_BRACE);
@@ -682,6 +721,9 @@ public class Generator extends Python3BaseListener {
         this.content = this.content.concat(Dictionary.CLOSE_BRACE);
     }
 
+	 /**
+     * Nasłuchuje na wejściu do wyrażenia try oraz dokleja słowo kluczowe 'try' i nawias zamykający
+     */
     @Override
     public void enterTry_stmt(Python3Parser.Try_stmtContext ctx) {
         this.content = this.content.concat("try " + Dictionary.OPEN_BRACE);
@@ -700,6 +742,11 @@ public class Generator extends Python3BaseListener {
         makeIndication();
     }
 
+	/**
+     * Nasłuchuje na wejściu do klauzuli except a następnie dokleja słowo kluczowe 'catch', nawias otwierający
+	 * oraz tekst dziecka czyli nazwę i typ wyjątku
+     * @param ctx
+     */
     @Override
     public void enterExcept_clause(Python3Parser.Except_clauseContext ctx) {
         this.content = this.content.concat(
@@ -724,7 +771,7 @@ public class Generator extends Python3BaseListener {
     }
 
     /**
-     * Nasłuchuje na wejściu do klauzuli except a następnie konkatenuje odpowiednie klamry
+     * Nasłuchuje na wejściu do ciała klauzuli except a następnie konkatenuje odpowiednie klamry
      * @param ctx
      */
     @Override
@@ -733,11 +780,18 @@ public class Generator extends Python3BaseListener {
         makeIndication();
     }
 
+    /**
+     * Nasłuchuje na wyjściu z ciała klauzuli except a następnie konkatenuje zamykającą klamrę
+     * @param ctx
+     */
     @Override
     public void exitExcept_clause_suite(Python3Parser.Except_clause_suiteContext ctx) {
         this.content = this.content.concat(Dictionary.CLOSE_BRACE + Dictionary.SPACE );
     }
 
+	    /**
+     * Nasłuchuje na wyjściu z ciała wrażenia try oraz dokleja klamrę zamykającą
+     */
     @Override
     public void exitTry_suite(Python3Parser.Try_suiteContext ctx) {
         makeIndication();
