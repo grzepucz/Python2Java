@@ -1,27 +1,32 @@
 public class Main {
 	public static class Source {
 		static void execute() {
-			try {
+			public class MyClass {
 				
-					String data = "src/path/to/file";
-					fh = File(data);
+				/** CLASS_INFO = """This is my class""" */;
+				double a = 10;
+				char b = "4";
+				String c = "Panda ";
+				c = c + b ;
+				boolean d = true;
+				
+				public void func() {
+				
+					if ((d)){
 					
-				
-				} catch (IOError ex) {
-				
-					System.out.println("Error: can\"t find file or read data");
+						System.out.println("Hello");
+						
 					
-				}  catch (ValueError argument) {
-				
-					System.out.println("The argument does not contain numbers\n" + Argument);
-					
-				}  finally {
-				
-					System.out.println("This would always be executed.");
+					}
 					
 				
 				}
+				
+			}
 			
+			System.out.println(MyClass.a);
+			System.out.println(MyClass.func);
+			System.out.println("This is my class");
 			
 		}
 	}

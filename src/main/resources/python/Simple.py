@@ -1,8 +1,13 @@
 class MyClass:
 	"""This is my class"""
 	a = 10
+	b = '4'
+	c = "Panda "
+	c = c + b
+	d = true
 	def func(self):
-		print('Hello')
+		if (d):
+			print('Hello')
 
 # Output: 10
 print(MyClass.a)

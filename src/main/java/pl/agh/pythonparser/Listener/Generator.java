@@ -262,7 +262,11 @@ public class Generator extends Python3BaseListener {
                         ctx.getChild(2).getText().startsWith(Dictionary.QUOTA)
                                 || ctx.getChild(2).getText().startsWith(Dictionary.APO)
                 ) {
-                    this.content = this.content.concat("String" + Dictionary.SPACE);
+                    if (ctx.getChild(2).getText().length() == 3) {
+                        this.content = this.content.concat("char" + Dictionary.SPACE);
+                    } else {
+                        this.content = this.content.concat("String" + Dictionary.SPACE);
+                    }
                 } else if (
                         (ctx.getChild(2).getText().equals("true"))
                                 || (ctx.getChild(2).getText().equals("false"))
@@ -1132,7 +1136,7 @@ public class Generator extends Python3BaseListener {
                 break;
             case "open":
                 this.content = this.content.concat(ctx.getText())
-                        .replace(Dictionary.OPEN_BRACKET+ctx.getText(), "File(" + ctx.getText());
+                        .replace(Dictionary.OPEN_BRACKET+ctx.getText(), "new File(" + ctx.getText());
                 break;
             case "abs":
                 this.content = this.content.replace(
